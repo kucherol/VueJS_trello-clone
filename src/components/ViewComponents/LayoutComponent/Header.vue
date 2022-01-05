@@ -139,32 +139,108 @@
                         </v-list-item>
                     </v-list>
                     <v-divider></v-divider>
+                </v-card>
+            </v-menu>
+            <v-menu v-model="menuStarred" :close-on-content-click="false" :nudge-width="200" offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on">Starred<v-icon class="icon__menu">{{ downArrow }}</v-icon></v-btn>
+                </template>
+                <v-card>
                     <v-list>
                         <v-list-item>
-                            <v-list-item-title class="dropdown__text--title">Your workspaces</v-list-item-title>
+                            <v-list-item-content>
+                                <v-list-item-title class="dropdown__text">Starred boards</v-list-item-title>
+                            </v-list-item-content>
+                            <v-list-item-action>
+                                <v-btn icon small>
+                                    <v-icon @click="menuStarred = false">mdi-close</v-icon>
+                                </v-btn>
+                            </v-list-item-action>
+                        </v-list-item>
+                    </v-list>
+                    <v-divider></v-divider>
+                    <v-list>
+                        <v-list-item>
+                            <img src="../../../assets/img/starred-board.svg">
+                        </v-list-item>
+                        <v-list-item>
+                            <v-list-item-title class="dropdown__text">Star important boards to access them quickly and easily.</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-card>
+            </v-menu>
+            <v-menu v-model="menuTemplates" :close-on-content-click="false" :nudge-width="200" offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on">Templates<v-icon class="icon__menu">{{ downArrow }}</v-icon></v-btn>
+                </template>
+                <v-card>
+                    <v-list>
+                        <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title class="dropdown__text">Templates</v-list-item-title>
+                            </v-list-item-content>
+                            <v-list-item-action>
+                                <v-btn icon small>
+                                    <v-icon @click="menuTemplates = false">mdi-close</v-icon>
+                                </v-btn>
+                            </v-list-item-action>
+                        </v-list-item>
+                    </v-list>
+                    <v-divider></v-divider>
+                    <v-list>
+                        <v-list-item>
+                            <v-list-item-title class="dropdown__text--title">Top templates</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
                                 <v-btn class="btn__bitbucket">  
-                                    <div class="icon__workspace--container">
-                                        <p class="icon__workspace--text">P</p>
+                                    <div class="icon__template--container">
+                                        <img src="../../../assets/img/template_images/template01.jpg" alt="template image" class="icon__template--image">
                                     </div>
-                                    <p class="btn__text--additional">Workspace Trello</p>
+                                    <p class="btn__text--additional">1-on-1 Meeting Agenda</p>
                                 </v-btn>
                             </a>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title class="dropdown__text--title">Guest workspaces</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
                                 <v-btn class="btn__bitbucket">  
-                                    <div class="icon__workspace--container icon__workspace--second-container">
-                                        <p class="icon__workspace--text">T</p>
+                                    <div class="icon__template--container">
+                                        <img src="../../../assets/img/template_images/template02.jpg" alt="template image" class="icon__template--image">
                                     </div>
-                                    <p class="btn__text--additional">Guest Trello</p>
+                                    <p class="btn__text--additional">Agile Board</p>
                                 </v-btn>
                             </a>
+                        </v-list-item>
+                        <v-list-item>
+                            <a href="/" class="btn__bitbucket">
+                                <v-btn class="btn__bitbucket">  
+                                    <div class="icon__template--container">
+                                        <img src="../../../assets/img/template_images/template03.jpg" alt="template image" class="icon__template--image">
+                                    </div>
+                                    <p class="btn__text--additional">Company Overview</p>
+                                </v-btn>
+                            </a>
+                        </v-list-item>
+                        <v-list-item>
+                            <a href="/" class="btn__bitbucket">
+                                <v-btn class="btn__bitbucket">  
+                                    <div class="icon__template--container">
+                                        <img src="../../../assets/img/template_images/template04.jpg" alt="template image" class="icon__template--image">
+                                    </div>
+                                    <p class="btn__text--additional">Design Huddle</p>
+                                </v-btn>
+                            </a>
+                        </v-list-item>
+                        <v-list-item>
+                            <div class="templates__footer">
+                                <div class="templates__footer-up">
+                                    <v-icon class="templates__footer-up--icon">{{ trelloIcon }}</v-icon>
+                                    <p class="templates__footer-up--text">See hundreds of templates from the Trello Community</p>
+                                </div>
+                                <div class="templates__footer-down">
+                                    
+                                </div>
+                            </div>
                         </v-list-item>
                     </v-list>
                 </v-card>
@@ -191,6 +267,8 @@ export default {
     menu: false,
     menuWorkspace: false,
     menuRecent: false,
+    menuStarred: false,
+    menuTemplates: false,
     message: false,
     hints: true,
     items: [
@@ -224,10 +302,11 @@ export default {
             box-shadow: none !important;
             border-radius: 3px;
             text-decoration: none;
-            padding: 0;
+            text-transform: none;
+            padding: 0 8px !important;
             margin: auto !important;
             font-size: 14px !important;
-            font-weight: 400 !important;
+            font-weight: 300 !important;
             color: #fff !important;
         }
         &__text {
@@ -262,6 +341,20 @@ export default {
     }
 
     .icon {
+        &__template {
+            &--container {
+                margin: 0 !important;
+                padding: 0 !important;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            &--image {
+                width: 35px;
+                height: 33px;
+                border-radius: 3px;
+            }
+        }
         &__additional {
             color: #fff !important;
             text-align: center !important;
