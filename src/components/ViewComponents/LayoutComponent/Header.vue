@@ -424,13 +424,7 @@ export default {
     menuNotification: false,
     menuAva: false,
     message: false,
-    hints: true,
-    items: [
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me 2' },
-    ],
+    hints: true
 }),
 };
 </script>
@@ -669,8 +663,14 @@ export default {
         &__search {
             border: 1px solid #fff;
             border-radius: 4px;
-            background-color: #00a6ff;
+            background-color: rgba($color: #fff, $alpha: 0.4);
             outline: none !important;
+            &:hover {
+                background-color: rgba($color: #fff, $alpha: 0.6);
+            }
+            &::placeholder {
+                color: #fff;
+            }
         }
     }
 
