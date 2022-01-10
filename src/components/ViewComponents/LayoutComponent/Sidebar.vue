@@ -21,13 +21,42 @@
                     </a>
                 </li>
                 <v-divider></v-divider>
-                <li class="sidebar__list-item board">
-                    <div class="board__icon">
-                        <v-icon class="board__icon--trello">{{ trelloIcon }}</v-icon>
-                    </div>
-                    <div class="board__text">
-                        <p class="workspace__text--title board__text--item">Boards</p>
-                    </div>
+                <a href="" class="workspace__link">
+                    <li class="sidebar__list-item board">
+                        <div class="board__icon">
+                            <v-icon class="board__icon--trello">{{ trelloIcon }}</v-icon>
+                        </div>
+                        <div class="board__text">
+                            <p class="workspace__text--title board__text--item">Boards</p>
+                        </div>
+                    </li>
+                </a>
+                <a href="" class="workspace__link">
+                    <li class="sidebar__list-item board">
+                        <div class="board__icon">
+                            <v-icon class="board__icon--trello">{{ peopleIcon }}</v-icon>
+                        </div>
+                        <div class="board__text">
+                            <p class="workspace__text--title board__text--item">Members</p>
+                        </div>
+                    </li>
+                </a>
+                <a href="" class="workspace__link">
+                    <li class="sidebar__list-item board">
+                        <div class="board__icon">
+                            <v-icon class="board__icon--trello">{{ settingsIcon }}</v-icon>
+                        </div>
+                        <div class="board__text">
+                            <p class="workspace__text--title board__text--item">Settings</p>
+                        </div>
+                    </li>
+                </a>
+                <v-divider></v-divider>
+                <li class="sidebar__list-item sidebar__subtitle">
+                    <p class="sidebar__subtitle--text">Your boards</p>
+                    <v-btn class="sidebar__board--add">
+                        <v-icon class="board__icon--trello">{{ plusIcon }}</v-icon>
+                    </v-btn>
                 </li>
             </ul>
         </div>
@@ -35,17 +64,21 @@
 </template>
 
 <script>
-import { mdiArrowRight, mdiTrello } from '@mdi/js';
+import { mdiArrowRight, mdiTrello, mdiAccountGroupOutline, mdiCog, mdiPlus } from '@mdi/js';
 export default {
     name: "Sidebar",
     data: () => ({
         arrowIcon: mdiArrowRight,
         trelloIcon: mdiTrello,
-        showSidebar: false,
+        peopleIcon: mdiAccountGroupOutline,
+        settingsIcon: mdiCog,
+        plusIcon: mdiPlus,
+        showSidebar: true,
     }),
     methods: {
         openSidebar() {
             this.showSidebar = !this.showSidebar;
+            this.$emit("openSidebar", this.showSidebar);
         }
     }
 }
@@ -55,9 +88,8 @@ export default {
     .sidebar {
         position: absolute;
         left: 0;
-        top: 48px;
         width: 2%;
-        padding: 10px;
+        padding: 58px 0 0 0;
         min-height: calc(100vh-20px);
         border: 1px solid #fff;
         background-color: #026AA7;
@@ -82,6 +114,28 @@ export default {
             &-item {
                 margin-bottom: 5px;
                 padding: 5px;
+            }
+        }
+        &__subtitle {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            &--text {
+                color: #fff;
+                font-size: 16px;
+            }
+        }
+        &__board {
+            &--add {
+                background-color: #026AA7 !important;
+                height: 30px !important;
+                min-width: 30px !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                &:hover {
+                    background-color: rgba($color: #fff, $alpha: 0.3);
+                }
             }
         }
     }
@@ -144,6 +198,33 @@ export default {
             }
             &--subtitle {
                 font-size: 12px;
+            }
+        }
+    }
+
+    .board {
+        width: 90%;
+        flex-direction: row;
+        margin-top: 10px;
+        padding: 5px;
+        transition: 0.5s;
+        border-radius: 4px;
+        display: flex;
+        &:hover {
+            background-color: rgba($color: #fff, $alpha: 0.2);
+        }
+        &__icon {
+            margin-right: 10px;
+            &--trello {
+                color: #fff;
+            }
+        }
+        &__text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &--item {
+                color: #fff;
             }
         }
     }

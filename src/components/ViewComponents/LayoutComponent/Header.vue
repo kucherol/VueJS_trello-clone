@@ -439,6 +439,7 @@ export default {
         width: 100%;
         align-items: center;
         margin: 0 !important;
+        z-index: 999;
         &__left {
             padding: 0 !important;
         }
@@ -460,6 +461,9 @@ export default {
             font-size: 14px !important;
             font-weight: 300 !important;
             color: #fff !important;
+            &:hover {
+                background-color: rgba($color: #fff, $alpha: 0.3);
+            }
         }
         &__text {
             font-family: Noto Sans,sans-serif;
