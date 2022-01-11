@@ -268,17 +268,22 @@
                     <v-divider></v-divider>
                     <v-list>
                         <v-list-item class="list-item__create">
-                            <a href="/" class="create__link">
-                                <div class="create__button">
-                                    <div class="create__button-top">
-                                        <v-icon class="create__button-top--icon">{{ trelloIcon }}</v-icon>
-                                        <p class="create__button-top--text">Create board</p>
-                                    </div>
-                                    <div class="create__button-bottom">
-                                        <p class="create__button-bottom--text">A board is made of cards ordered on lists. Use it to manage projects, track information, or organize anything.</p>
-                                    </div>
-                                </div>
-                            </a>
+                            <v-menu v-model="openCreateBoard" :close-on-content-click="false" :nudge-width="80" offset-y>
+                                <template v-slot:activator="{ on, attrs }" >
+                                    <a class="create__link" v-bind="attrs" v-on="on">
+                                        <div class="create__button">
+                                            <div class="create__button-top">
+                                                <v-icon class="create__button-top--icon">{{ trelloIcon }}</v-icon>
+                                                <p class="create__button-top--text">Create board</p>
+                                            </div>
+                                            <div class="create__button-bottom">
+                                                <p class="create__button-bottom--text">A board is made of cards ordered on lists. Use it to manage projects, track information, or organize anything.</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </template>
+                                <create-board @closeCreateBoard="closeCreateBoard" />
+                            </v-menu>
                         </v-list-item>
                         <v-list-item class="list-item__create">
                             <a href="/" class="create__link">
@@ -398,7 +403,11 @@
 <script>
 import { mdiDotsGrid, mdiTrello, mdiMenuDown, mdiLink, mdiBitbucket, mdiJira, mdiCompass, mdiSatellite, mdiAccountGroupOutline, mdiInformationOutline, mdiBellOutline, mdiAccountMultiple } from '@mdi/js';
 import 'font-awesome/css/font-awesome.min.css';
+import CreateBoard from '../BoardComponent/CreateBoard.vue';
 export default {
+    components: { 
+        CreateBoard 
+        },
     name: "Header",
     data: () => ({
     menuDots:  mdiDotsGrid,
@@ -423,9 +432,15 @@ export default {
     menuInfo: false,
     menuNotification: false,
     menuAva: false,
+    openCreateBoard: false,
     message: false,
     hints: true
 }),
+    methods: {
+        closeCreateBoard(value) {
+            this.openCreateBoard = value;
+        }
+    },
 };
 </script>
 
@@ -693,5 +708,4 @@ export default {
             display: block !important;
         }
     }
-
 </style>

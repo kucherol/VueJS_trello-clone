@@ -17,8 +17,16 @@
                 <p class="title-text">Your workspace</p>
             </div>
             <div class="boards__your--table">
-                <a href="/" v-for="(board, key) in boards" :key="key" class="board-card">
+                <a v-for="(board, index) in boards" :key="index" class="board-card" :class="board.color">
                     <p class="board-card--text">{{ board.title }}</p>
+                    <v-menu v-model="openDeleteBoard" :close-on-content-click="false" :nudge-width="200" offset-y>
+                        <template v-slot:activator="{ on, attrs }" >
+                            <v-btn class="mx-2 board-card--icon-container" fab small v-bind="attrs" v-on="on">
+                                <v-icon class="board-card--icon">{{ deleteIcon }}</v-icon>
+                            </v-btn>
+                        </template>
+                        <delete-board @closeDeleteBoard="closeDeleteBoard" />
+                    </v-menu>
                 </a>
             </div>
         </section> 
@@ -27,14 +35,25 @@
 
 <script>
 import firebase from "../firebase.js";
-import { mdiClockOutline } from '@mdi/js';
+import { mdiClockOutline, mdiTrashCanOutline } from '@mdi/js';
+import DeleteBoard from "../components/ViewComponents/BoardComponent/DeleteBoard.vue";
 export default {
     name: "Boards",
+    components: {
+        DeleteBoard,
+    },
     data: () => ({
         clockIcon: mdiClockOutline,
+        deleteIcon: mdiTrashCanOutline,
         boards: [ ],
+        openDeleteBoard: false,
         ref: firebase.firestore().collection('boards'),
     }),
+    methods: {
+        closeDeleteBoard(value) {
+            this.openDeleteBoard = value;
+        }
+    },
     created() {
         this.ref.onSnapshot((snapshotChange) => {
             this.boards = [];
@@ -42,6 +61,7 @@ export default {
                 this.boards.push({
                     key: doc.id,
                     title: doc.data().title,
+                    color: doc.data().color,
                 })
             })
         })
@@ -93,13 +113,21 @@ export default {
     }
 
     .board-card {
-        background-color: #0747a6;
+        position: relative;
         height: 150px;
         width: 200px;
         border-radius: 5px;
         margin: auto;
+        transition: all 0.5s;
         &:hover {
-            background-color: rgba($color: #0747a6, $alpha: 0.8);
+            box-shadow: 0px 0px 60px 7px rgba(34, 60, 80, 0.5) inset;
+            .board-card--text {
+                font-size: 18px;
+                margin: 30px 0 0 30px;
+            }
+            .board-card--icon-container {
+               display: inline-block;
+            }
         }
         &--text {
             display: inline-block;
@@ -107,6 +135,20 @@ export default {
             font-weight: 500;
             font-size: 16px;
             margin: 10px 0 0 10px;
+            transition: all 0.5s;
+        }
+        &--icon {
+            &-container {
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0) !important;
+                box-shadow: none !important;
+                right: 10px;
+                top: 10px;
+                color: #fff;
+                display: none;
+                transition: all 1s;
+                z-index: 999;
+            }
         }
     }
 

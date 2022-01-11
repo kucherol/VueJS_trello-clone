@@ -54,19 +54,39 @@
                 <v-divider></v-divider>
                 <li class="sidebar__list-item sidebar__subtitle">
                     <p class="sidebar__subtitle--text">Your boards</p>
-                    <v-btn class="sidebar__board--add">
-                        <v-icon class="board__icon--trello">{{ plusIcon }}</v-icon>
-                    </v-btn>
+                    <v-menu v-model="openCreateBoard" :close-on-content-click="false" :nudge-width="80" offset-y>
+                        <template v-slot:activator="{ on, attrs }" >
+                            <v-btn class="sidebar__board--add" v-bind="attrs" v-on="on">
+                                <v-icon class="board__icon--trello">{{ plusIcon }}</v-icon>
+                            </v-btn>
+                        </template>
+                        <create-board @closeCreateBoard="closeCreateBoard" />
+                    </v-menu>
                 </li>
+                <a v-for="(board, key) in boards" :key="key" class="workspace__link">
+                    <li class="sidebar__list-item board">
+                        <div class="board__img" :class="board.color">
+                            <p class="board__img--text">{{ board.title.charAt(0) }}</p>
+                        </div>
+                        <div class="board__text">
+                            <p class="workspace__text--title board__text--item">{{ board.title }}</p>
+                        </div>
+                    </li>
+                </a>
             </ul>
         </div>
     </div>
 </template>
 
 <script>
+import firebase from "../../../firebase.js";
+import CreateBoard from "../BoardComponent/CreateBoard.vue";
 import { mdiArrowRight, mdiTrello, mdiAccountGroupOutline, mdiCog, mdiPlus } from '@mdi/js';
 export default {
     name: "Sidebar",
+    components: {
+        CreateBoard,
+    },
     data: () => ({
         arrowIcon: mdiArrowRight,
         trelloIcon: mdiTrello,
@@ -74,13 +94,31 @@ export default {
         settingsIcon: mdiCog,
         plusIcon: mdiPlus,
         showSidebar: true,
+        openCreateBoard: false,
+        boards: [ ],
+        ref: firebase.firestore().collection('boards'),
     }),
     methods: {
         openSidebar() {
             this.showSidebar = !this.showSidebar;
             this.$emit("openSidebar", this.showSidebar);
+        },
+        closeCreateBoard(value) {
+            this.openCreateBoard = value;
         }
-    }
+    },
+    created() {
+        this.ref.onSnapshot((snapshotChange) => {
+            this.boards = [];
+            snapshotChange.forEach((doc) => {
+                this.boards.push({
+                    key: doc.id,
+                    title: doc.data().title,
+                    color: doc.data().color,
+                })
+            })
+        })
+    },
 }
 </script>
 
@@ -224,6 +262,18 @@ export default {
             justify-content: center;
             align-items: center;
             &--item {
+                color: #fff;
+            }
+        }
+        &__img {
+            margin-right: 10px;
+            width: 25px;
+            height: 25px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &--text {
                 color: #fff;
             }
         }
