@@ -5,9 +5,14 @@
                 <v-list-item-content>
                     <v-list-item-title >Delete board?</v-list-item-title>
                 </v-list-item-content>
-                <v-list-item-action>
-                    <v-btn icon small>
-                        <v-icon @click="closeDeleteBoard">mdi-close</v-icon>
+            </v-list-item>
+            <v-list-item class="control">
+                <v-list-item-action class="control-list">
+                    <v-btn icon large @click="deleteBoard">
+                        <v-icon class="icon-ok">mdi-check</v-icon>
+                    </v-btn>
+                    <v-btn icon large @click="closeDeleteBoard">
+                        <v-icon class="icon-close">mdi-close</v-icon>
                     </v-btn>
                 </v-list-item-action>
             </v-list-item>
@@ -16,16 +21,51 @@
 </template>
 
 <script>
+import firebase from "../../../firebase.js";
 export default {
     name: "DeleteBoard",
+    props: {
+        id: {
+            type: String,
+        }
+    },
     methods: {
         closeDeleteBoard() {
-            this.$emit("closeDeleteBoard", false);
+            this.$emit("closeDeleteBoard", this.id);
         },
+        deleteBoard() {
+            firebase.firestore().collection("boards").doc(this.id).delete().then(() => {
+                this.closeDeleteBoard();
+                alert("Board deleted!")
+            }).catch((error) => {
+                alert("Error", error);
+            });
+        }
     }
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+    .control {
+        justify-content: center;
+        &-list {
+            flex-direction: row;
+            margin: 0 !important;
+            & button {
+                margin: 10px;
+                padding: 15px;
+                &:hover {
+                    background-color: rgba($color: #026AA7, $alpha: 0.3);
+                    .icon {
+                        &-close {
+                            color: red !important;
+                        }
+                        &-ok {
+                            color: green !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
 </style>

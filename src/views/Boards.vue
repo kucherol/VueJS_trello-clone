@@ -17,15 +17,15 @@
                 <p class="title-text">Your workspace</p>
             </div>
             <div class="boards__your--table">
-                <a v-for="(board, index) in boards" :key="index" class="board-card" :class="board.color">
+                <a v-for="(board, id) in boards" :key="id" class="board-card" :class="board.color">
                     <p class="board-card--text">{{ board.title }}</p>
-                    <v-menu v-model="openDeleteBoard" :close-on-content-click="false" :nudge-width="200" offset-y>
+                    <v-menu v-model="openDeleteBoard[board.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
                         <template v-slot:activator="{ on, attrs }" >
                             <v-btn class="mx-2 board-card--icon-container" fab small v-bind="attrs" v-on="on">
                                 <v-icon class="board-card--icon">{{ deleteIcon }}</v-icon>
                             </v-btn>
                         </template>
-                        <delete-board @closeDeleteBoard="closeDeleteBoard" />
+                        <delete-board @closeDeleteBoard="closeDeleteBoard" :id="board.id" />
                     </v-menu>
                 </a>
             </div>
@@ -46,12 +46,12 @@ export default {
         clockIcon: mdiClockOutline,
         deleteIcon: mdiTrashCanOutline,
         boards: [ ],
-        openDeleteBoard: false,
+        openDeleteBoard: {},
         ref: firebase.firestore().collection('boards'),
     }),
     methods: {
         closeDeleteBoard(value) {
-            this.openDeleteBoard = value;
+            this.openDeleteBoard[value] = false
         }
     },
     created() {
@@ -59,7 +59,7 @@ export default {
             this.boards = [];
             snapshotChange.forEach((doc) => {
                 this.boards.push({
-                    key: doc.id,
+                    id: doc.id,
                     title: doc.data().title,
                     color: doc.data().color,
                 })

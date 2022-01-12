@@ -59,9 +59,9 @@ export default {
         },
         createBoard() {
             this.ref.add(this.board).then(() => {
-                alert("User successfully created!");
-                this.board.color = ''
-                this.board.title = ''
+                this.closeCreateBoard();
+                this.board.color = ""
+                this.board.title = ""
             }).catch((error) => {
                 console.log(error);
             });
