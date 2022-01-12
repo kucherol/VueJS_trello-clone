@@ -6,7 +6,6 @@
                 <p class="title-text">Recently viewed</p>
             </div>
             <div class="boards__viewed--table">
-                
             </div>
         </section>
         <section class="boards__viewed boards__your">
@@ -17,7 +16,7 @@
                 <p class="title-text">Your workspace</p>
             </div>
             <div class="boards__your--table">
-                <a v-for="(board, id) in boards" :key="id" class="board-card" :class="board.color">
+                <a v-for="(board, id) in boards" :key="id" class="board-card" :class="board.color" @click.prevent="goToBoard(board.id)">
                     <p class="board-card--text">{{ board.title }}</p>
                     <v-menu v-model="openDeleteBoard[board.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
                         <template v-slot:activator="{ on, attrs }" >
@@ -29,7 +28,7 @@
                     </v-menu>
                 </a>
             </div>
-        </section> 
+        </section>
     </div>
 </template>
 
@@ -38,7 +37,7 @@ import firebase from "../firebase.js";
 import { mdiClockOutline, mdiTrashCanOutline } from '@mdi/js';
 import DeleteBoard from "../components/ViewComponents/BoardComponent/DeleteBoard.vue";
 export default {
-    name: "Boards",
+    name: "Dashboard",
     components: {
         DeleteBoard,
     },
@@ -52,6 +51,13 @@ export default {
     methods: {
         closeDeleteBoard(value) {
             this.openDeleteBoard[value] = false
+        },
+        goToBoard(id) {
+            console.log(id)
+            this.$router.push({
+                name: "Board",
+                params: { boardId: id },
+			});
         }
     },
     created() {

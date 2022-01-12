@@ -1,20 +1,25 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Boards from "../views/Boards.vue";
+import Dashboard from "../views/Dashboard.vue";
+import Board from "../views/Board.vue";
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: "/",
-    name: 'Boards',
-    component: Boards
+    name: "Dashboard",
+    component: Dashboard
   },
-
+  {
+    path: "/board/:boardId",
+    name: "Board",
+    component: Board
+  },
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
   routes
 })
