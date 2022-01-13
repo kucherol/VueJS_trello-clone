@@ -1,5 +1,5 @@
 <template>
-    <div class="Boards">
+    <div class="boards">
         <section class="boards__viewed">
             <div class="boards__viewed--title">
                 <v-icon class="title-icon">{{ clockIcon }}</v-icon>
@@ -77,6 +77,7 @@ export default {
 
 <style lang="scss" scoped>
     .boards {
+		padding: 20px 0 0 45px;
         &__viewed {
             &--title {
                 display: flex;

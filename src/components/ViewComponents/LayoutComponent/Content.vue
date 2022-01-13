@@ -20,11 +20,11 @@
 <style lang="scss" scoped>
 	.main-content {
 		width: 100%;
-		padding: 50px 45px 45px 45px !important;
+		padding: 45px 0 0 20px !important;
 	}
 
 	.sidebar__show {
-		padding: 50px 45px 45px 300px !important;
+		padding: 45px 0 0 250px !important;
 	}
 
 </style>
