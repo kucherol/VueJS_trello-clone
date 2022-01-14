@@ -53,7 +53,6 @@ export default {
             this.openDeleteBoard[value] = false
         },
         goToBoard(id) {
-            console.log(id)
             this.$router.push({
                 name: "Board",
                 params: { boardId: id },
