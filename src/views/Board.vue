@@ -36,7 +36,7 @@
 						</v-card>
 					</v-menu>
 				</div>
-				<div class="board__list--item" v-for="(card, id) in cards" :key="id" >
+				<div class="board__list--item" v-for="(card, id) in cards" :key="id" draggable="true">
 					<div v-if="card.listID === listItem.id">
 						<p class="board__list--item-text" >{{ card.title }}</p>
 						<v-menu v-model="cardSettings[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
@@ -64,16 +64,60 @@
 					</div>
 				</div>
 				<div class="board__list--footer">
-					<v-btn class="board__list--footer-button">
-						<v-icon class="board__list--footer-icon">mdi-plus</v-icon>
-						<p class="board__list--footer-text">Add a card</p>
-					</v-btn>
+					<v-menu v-model="addCardMenu[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+						<template v-slot:activator="{ on, attrs }" >
+							<v-btn class="board__list--footer-button" v-bind="attrs" v-on="on">
+								<v-icon class="board__list--footer-icon">mdi-plus</v-icon>
+								<p class="board__list--footer-text">Add a card</p>
+							</v-btn>
+						</template>
+						<v-card>
+							<v-list>
+								<v-list-item class="addCard__menu--title">
+									<p class="addCard__menu--title-text">Add new card</p>
+								</v-list-item>
+								<v-list-item>
+									<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
+								</v-list-item>
+								<div class="board__list--title-menu">
+									<v-btn icon large>
+										<v-icon @click="addNewCard(listItem)">mdi-check</v-icon>
+									</v-btn>
+									<v-btn icon large @click="closeAddCardMenu(id)">
+										<v-icon >mdi-close</v-icon>
+									</v-btn>
+								</div>
+							</v-list>
+						</v-card>
+					</v-menu>
 				</div>
 			</v-card>
-			<v-btn class="board__addNew">
-				<v-icon class="board__addNew--icon">mdi-plus</v-icon>
-				<p class="board__addNew--text">Add another list</p>
-			</v-btn>
+			<v-menu v-model="addListMenu[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+				<template v-slot:activator="{ on, attrs }" >
+					<v-btn class="board__addNew" v-bind="attrs" v-on="on">
+						<v-icon class="board__addNew--icon">mdi-plus</v-icon>
+						<p class="board__addNew--text">Add another list</p>
+					</v-btn>
+				</template>
+				<v-card>
+					<v-list>
+						<v-list-item class="addCard__menu--title">
+							<p class="addCard__menu--title-text">Add new list</p>
+						</v-list-item>
+						<v-list-item>
+							<v-text-field placeholder="List title" v-model="list.title" solo class="board__header-left--title-input"></v-text-field>
+						</v-list-item>
+						<div class="board__list--title-menu">
+							<v-btn icon large>
+								<v-icon @click="addNewList">mdi-check</v-icon>
+							</v-btn>
+							<v-btn icon large @click="closeAddListMenu(id)">
+								<v-icon >mdi-close</v-icon>
+							</v-btn>
+						</div>
+					</v-list>
+				</v-card>
+			</v-menu>
 		</v-row>
 	</div>
 </template>
@@ -86,12 +130,26 @@ export default {
 		h1Title: true,
 		listSettings: {},
 		cardSettings: {},
+		addCardMenu: {},
+		addListMenu: {},
 		ref: firebase.firestore().collection('boards'),
         board: {},
 		lists: [],
 		cards: [],
+		card: {
+			title: null
+		},
+		list: {
+			title: null
+		},
     }),
 	methods: {
+		closeAddListMenu(id) {
+			this.addListMenu[id] = !this.addListMenu[id]
+		},
+		closeAddCardMenu(id) {
+			this.addCardMenu[id] = !this.addCardMenu[id]
+		},
 		closeCardSettings(id) {
 			this.cardSettings[id] = !this.cardSettings[id]
 		},
@@ -168,6 +226,26 @@ export default {
 			.then(() => console.log("Successfully updated"))
 			.catch(function(error) {
 			console.log("Error getting document:", error);
+			});
+		},
+		addNewCard(listItem) {
+			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title})
+			.then(() => {
+				this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
+				.then(response => {
+					response.forEach((doc) => {
+						if (this.card.title === doc.data().title) {
+							this.cards.push({
+							listID: listItem.id,
+							id: doc.id,
+							title: doc.data().title,
+						})
+						}
+					})
+				})
+				})
+			.catch(function(error) {
+				console.log("Error getting document:", error);
 			});
 		},
 		test() {
@@ -318,6 +396,14 @@ export default {
 		}
 	}
 
-
+	.addCard__menu--title {
+		align-items: center;
+		justify-content: center;
+		&-text {
+			font-size: 16px;
+			font-weight: 300;
+			text-decoration: none;
+		}
+	}
 
 </style>
