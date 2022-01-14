@@ -36,7 +36,7 @@
 						</v-card>
 					</v-menu>
 				</div>
-				<div class="board__list--item" v-for="(card, id) in cards" :key="id" draggable="true">
+				<div class="board__list--item" v-for="(card, id) in cards" :key="id" >
 					<div v-if="card.listID === listItem.id">
 						<p class="board__list--item-text" >{{ card.title }}</p>
 						<v-menu v-model="cardSettings[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
@@ -92,7 +92,7 @@
 					</v-menu>
 				</div>
 			</v-card>
-			<v-menu v-model="addListMenu[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+			<v-menu v-model="addListMenu" :close-on-content-click="false" :nudge-width="200" offset-y>
 				<template v-slot:activator="{ on, attrs }" >
 					<v-btn class="board__addNew" v-bind="attrs" v-on="on">
 						<v-icon class="board__addNew--icon">mdi-plus</v-icon>
@@ -105,13 +105,13 @@
 							<p class="addCard__menu--title-text">Add new list</p>
 						</v-list-item>
 						<v-list-item>
-							<v-text-field placeholder="List title" v-model="list.title" solo class="board__header-left--title-input"></v-text-field>
+							<v-text-field v-model="list.title" placeholder="List title" solo class="board__header-left--title-input"></v-text-field>
 						</v-list-item>
 						<div class="board__list--title-menu">
 							<v-btn icon large>
 								<v-icon @click="addNewList">mdi-check</v-icon>
 							</v-btn>
-							<v-btn icon large @click="closeAddListMenu(id)">
+							<v-btn icon large @click="addListMenu = false">
 								<v-icon >mdi-close</v-icon>
 							</v-btn>
 						</div>
@@ -131,7 +131,7 @@ export default {
 		listSettings: {},
 		cardSettings: {},
 		addCardMenu: {},
-		addListMenu: {},
+		addListMenu: false,
 		ref: firebase.firestore().collection('boards'),
         board: {},
 		lists: [],
@@ -139,14 +139,9 @@ export default {
 		card: {
 			title: null
 		},
-		list: {
-			title: null
-		},
+		list: {},
     }),
 	methods: {
-		closeAddListMenu(id) {
-			this.addListMenu[id] = !this.addListMenu[id]
-		},
 		closeAddCardMenu(id) {
 			this.addCardMenu[id] = !this.addCardMenu[id]
 		},
@@ -247,6 +242,26 @@ export default {
 			.catch(function(error) {
 				console.log("Error getting document:", error);
 			});
+		},
+		addNewList() {
+			this.ref.doc(this.$route.params.boardId).collection("lists").add({title: this.list.title})
+			.then(() => {
+				this.ref.doc(this.$route.params.boardId).collection("lists").get()
+				.then(response => {
+					response.forEach((doc) => {
+						if (this.list.title === doc.data().title) {
+							this.lists.push({
+							id: doc.id,
+							title: doc.data().title,
+						})
+						}
+					})
+				})
+				})
+			.catch(function(error) {
+				console.log("Error getting document:", error);
+			});
+			this.addListMenu = !this.addListMenu
 		},
 		test() {
 			console.log(this.board)
