@@ -5,12 +5,9 @@
 				<h1 v-if="h1Title" @click="changeHTMLTitle" class="board__header-left--title">{{ this.board.title }}</h1>
 				<v-text-field v-model="board.title" v-if="!h1Title" solo clearable clear-icon="mdi-check" @click:clear="updateTitle" class="board__header-left--title-input"></v-text-field>
 			</v-col>
-			<v-col sm="6" class="board__header-right" >
-				<v-btn @click="test"></v-btn>
-			</v-col>
 		</v-row>
 		<v-row class="board__table">
-			<v-card v-for="(listItem, id) in lists" :key="id" elevation="2" outlined class="board__list">
+			<v-card v-for="(listItem, id) in sortedList" :key="id" elevation="2" outlined class="board__list">
 				<div class="board__list--title">
 					<v-card-title class="board__list--title-text">{{ listItem.title }}</v-card-title>
 					<v-menu v-model="listSettings[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
@@ -32,6 +29,30 @@
 										<v-icon >mdi-close</v-icon>
 									</v-btn>
 								</div>
+								<v-list-item>
+									<v-menu v-model="listDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+										<template v-slot:activator="{ on, attrs }" >
+											<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
+										</template>
+										<v-card>
+											<v-list>
+												<v-list-item>
+													<p class="btn__delete--title">Delete list?</p>
+												</v-list-item>
+												<v-list-item>
+													<div class="btn__delete--menu">
+														<v-btn icon large @click="deleteList(listItem)">
+															<v-icon >mdi-check</v-icon>
+														</v-btn>
+														<v-btn icon large @click="closeListSettings(id)">
+															<v-icon >mdi-close</v-icon>
+														</v-btn>
+													</div>
+												</v-list-item>
+											</v-list>
+										</v-card>
+									</v-menu>
+								</v-list-item>
 							</v-list>
 						</v-card>
 					</v-menu>
@@ -39,7 +60,7 @@
 				<div class="board__list--item" v-for="(card, id) in cards" :key="id" >
 					<div v-if="card.listID === listItem.id">
 						<p class="board__list--item-text" >{{ card.title }}</p>
-						<v-menu v-model="cardSettings[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+						<v-menu v-model="cardSettings[card.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 							<template v-slot:activator="{ on, attrs }" >
 								<v-btn small class="board__list--item-button" v-bind="attrs" v-on="on">
 									<v-icon >mdi-pencil</v-icon>
@@ -51,20 +72,44 @@
 										<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
 									</v-list-item>
 									<div class="board__list--title-menu">
-										<v-btn icon large>
-											<v-icon @click="updateCardTitle(card)">mdi-check</v-icon>
+										<v-btn icon large @click="updateCardTitle(card)">
+											<v-icon >mdi-check</v-icon>
 										</v-btn>
-										<v-btn icon large @click="closeCardSettings(id)">
+										<v-btn icon large @click="closeCardSettings(card.id)">
 											<v-icon >mdi-close</v-icon>
 										</v-btn>
 									</div>
+									<v-list-item>
+									<v-menu v-model="cardDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+										<template v-slot:activator="{ on, attrs }" >
+											<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
+										</template>
+										<v-card>
+											<v-list>
+												<v-list-item>
+													<p class="btn__delete--title">Delete card?</p>
+												</v-list-item>
+												<v-list-item>
+													<div class="btn__delete--menu">
+														<v-btn icon large @click="deleteCard(card)">
+															<v-icon >mdi-check</v-icon>
+														</v-btn>
+														<v-btn icon large @click="closeCardDelete(id)">
+															<v-icon >mdi-close</v-icon>
+														</v-btn>
+													</div>
+												</v-list-item>
+											</v-list>
+										</v-card>
+									</v-menu>
+								</v-list-item>
 								</v-list>
 							</v-card>
 						</v-menu>
 					</div>
 				</div>
 				<div class="board__list--footer">
-					<v-menu v-model="addCardMenu[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+					<v-menu v-model="addCardMenu[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 						<template v-slot:activator="{ on, attrs }" >
 							<v-btn class="board__list--footer-button" v-bind="attrs" v-on="on">
 								<v-icon class="board__list--footer-icon">mdi-plus</v-icon>
@@ -80,10 +125,10 @@
 									<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
 								</v-list-item>
 								<div class="board__list--title-menu">
-									<v-btn icon large>
-										<v-icon @click="addNewCard(listItem)">mdi-check</v-icon>
+									<v-btn icon large @click="addNewCard(listItem)">
+										<v-icon>mdi-check</v-icon>
 									</v-btn>
-									<v-btn icon large @click="closeAddCardMenu(id)">
+									<v-btn icon large @click="closeAddCardMenu(listItem.id)">
 										<v-icon >mdi-close</v-icon>
 									</v-btn>
 								</div>
@@ -129,12 +174,15 @@ export default {
 	data: () => ({
 		h1Title: true,
 		listSettings: {},
+		listDelete: {},
 		cardSettings: {},
+		cardDelete: {},
 		addCardMenu: {},
 		addListMenu: false,
 		ref: firebase.firestore().collection('boards'),
         board: {},
 		lists: [],
+		sortedList: [],
 		cards: [],
 		card: {
 			title: null
@@ -142,6 +190,9 @@ export default {
 		list: {},
     }),
 	methods: {
+		closeCardDelete(id) {
+			this.cardDelete[id] = false
+		},
 		closeAddCardMenu(id) {
 			this.addCardMenu[id] = !this.addCardMenu[id]
 		},
@@ -170,8 +221,10 @@ export default {
 					this.lists.push({
 						id: doc.id,
 						title: doc.data().title,
+						sortListIndex: this.lists.length,
 					})
 				})
+				this.sortedList = this.lists.sort((a,b) => {a.sortListIndex - b.sortListIndex})
 				this.getCards(this.lists.id);
 			})
 		},
@@ -242,6 +295,7 @@ export default {
 			.catch(function(error) {
 				console.log("Error getting document:", error);
 			});
+			this.closeAddCardMenu(listItem.id);
 		},
 		addNewList() {
 			this.ref.doc(this.$route.params.boardId).collection("lists").add({title: this.list.title})
@@ -253,6 +307,7 @@ export default {
 							this.lists.push({
 							id: doc.id,
 							title: doc.data().title,
+							sortListIndex: this.lists.length,
 						})
 						}
 					})
@@ -261,12 +316,43 @@ export default {
 			.catch(function(error) {
 				console.log("Error getting document:", error);
 			});
+			console.log(this.lists)
 			this.addListMenu = !this.addListMenu
 		},
-		test() {
-			console.log(this.board)
-			console.log(this.lists)
-			console.log(this.cards)
+		deleteCard(card) {
+			let cardIndex = 0;
+			this.cards.forEach(function(element, index) {
+				if (element.id === card.id) {
+					cardIndex = index
+				}
+			});
+			this.cards.splice(cardIndex, 1);
+			this.ref.doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).delete()
+			.then(() => {
+				console.log("card deleted", card)
+				})
+			.catch(function(error) {
+				console.log("Error getting document:", error);
+			});
+			this.closeCardDelete();
+		},
+		deleteList(listItem) {
+			for (let i = 0; i < this.cards.length; i++) {
+				if (listItem.id === this.cards[i].listID) {
+					let cardID = this.cards[i].id
+					this.cards.splice(i, 1);
+					i--;
+					this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").doc(cardID).delete();
+				}
+			}
+			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).delete()
+			.then(() => {
+				for (let j = 0; j < this.lists.length; j++ ) {
+					if (this.lists[j].id === listItem.id) {
+						this.lists.splice(j, 1);
+					}
+				}
+			});
 		},
 	},
 	created() {
@@ -418,6 +504,23 @@ export default {
 			font-size: 16px;
 			font-weight: 300;
 			text-decoration: none;
+		}
+	}
+	.btn {
+		&__delete {
+			&--menu {
+				margin: auto;
+			}
+			&--title {
+				display: block;
+				margin: auto !important;
+				margin-bottom: 0 !important;
+				margin-top: 0 !important;
+			}
+			&--list {
+				display: inline-block;
+				margin: auto !important;
+			}
 		}
 	}
 
