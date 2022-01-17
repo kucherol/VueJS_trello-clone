@@ -8,7 +8,7 @@
         <div v-if="showSidebar">
             <ul class="sidebar__list">
                 <li class="sidebar__list-item">
-                    <a href="" class="workspace__link"> 
+                    <a href="" class="workspace__link">
                         <div class="workspace">
                             <div class="workspace__icon--container">
                                 <p class="workspace__icon">W</p>
@@ -63,7 +63,7 @@
                         <create-board @closeCreateBoard="closeCreateBoard" />
                     </v-menu>
                 </li>
-                <a v-for="(board, key) in boards" :key="key" class="workspace__link">
+                <a v-for="(board, id) in boards" :key="id" class="workspace__link" @click.prevent="goToBoard(board.id)">
                     <li class="sidebar__list-item board">
                         <div class="board__img" :class="board.color">
                             <p class="board__img--text">{{ board.title.charAt(0) }}</p>
@@ -105,6 +105,12 @@ export default {
         },
         closeCreateBoard(value) {
             this.openCreateBoard = value;
+        },
+		goToBoard(id) {
+            this.$router.push({
+                name: "Board",
+                params: { boardId: id },
+			});
         }
     },
     created() {

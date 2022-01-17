@@ -57,7 +57,7 @@
 						</v-card>
 					</v-menu>
 				</div>
-				<div class="board__list--item" v-for="(card, id) in cards" :key="id" draggable @dragstart="startDrag($event, card)">
+				<div class="board__list--item" v-for="(card, id) in sortedCards" :key="id" draggable @dragstart="startDrag($event, card)">
 					<div v-if="card.listID === listItem.id">
 						<p class="board__list--item-text" >{{ card.title }}</p>
 						<v-menu v-model="cardSettings[card.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
@@ -184,6 +184,7 @@ export default {
 		lists: [],
 		sortedList: [],
 		cards: [],
+		sortedCards: [],
 		card: {
 			title: null
 		},
@@ -221,10 +222,10 @@ export default {
 					this.lists.push({
 						id: doc.id,
 						title: doc.data().title,
-						sortListIndex: this.lists.length,
+						sortListIndex: doc.data().sortListIndex,
 					})
 				})
-				this.sortedList = this.lists.sort((a,b) => {a.sortListIndex - b.sortListIndex})
+				this.sortedList = this.lists.sort(function(a,b) {return a.sortListIndex - b.sortListIndex})
 				this.getCards(this.lists.id);
 			})
 		},
@@ -237,8 +238,10 @@ export default {
 							listID: this.lists[i].id,
 							id: doc.id,
 							title: doc.data().title,
+							sortCardIndex: doc.data().sortCardIndex,
 						})
 					})
+					this.sortedCards = this.cards.sort(function(a,b) {return a.sortCardIndex - b.sortCardIndex})
 				})
 			}
 		},
@@ -277,7 +280,7 @@ export default {
 			});
 		},
 		addNewCard(listItem) {
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title})
+			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length})
 			.then(() => {
 				this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
 				.then(response => {
@@ -287,6 +290,7 @@ export default {
 							listID: listItem.id,
 							id: doc.id,
 							title: doc.data().title,
+							sortCardIndex: doc.data().sortCardIndex,
 						})
 						}
 					})
@@ -298,7 +302,7 @@ export default {
 			this.closeAddCardMenu(listItem.id);
 		},
 		addNewList() {
-			this.ref.doc(this.$route.params.boardId).collection("lists").add({title: this.list.title})
+			this.ref.doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.lists.length })
 			.then(() => {
 				this.ref.doc(this.$route.params.boardId).collection("lists").get()
 				.then(response => {
@@ -307,7 +311,7 @@ export default {
 							this.lists.push({
 							id: doc.id,
 							title: doc.data().title,
-							sortListIndex: this.lists.length,
+							sortListIndex: doc.data().sortListIndex,
 						})
 						}
 					})
@@ -316,7 +320,6 @@ export default {
 			.catch(function(error) {
 				console.log("Error getting document:", error);
 			});
-			console.log(this.lists)
 			this.addListMenu = !this.addListMenu
 		},
 		deleteCard(card) {
