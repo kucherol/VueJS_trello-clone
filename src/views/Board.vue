@@ -7,7 +7,7 @@
 			</v-col>
 		</v-row>
 		<v-row class="board__table">
-			<v-card v-for="(listItem, id) in sortedList" :key="id" elevation="2" outlined class="board__list">
+			<v-card v-for="(listItem, id) in sortedList" :key="id" elevation="2" outlined class="board__list" @drop="onDrop($event, listItem)" @dragover.prevent @dragenter.prevent>
 				<div class="board__list--title">
 					<v-card-title class="board__list--title-text">{{ listItem.title }}</v-card-title>
 					<v-menu v-model="listSettings[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
@@ -57,7 +57,7 @@
 						</v-card>
 					</v-menu>
 				</div>
-				<div class="board__list--item" v-for="(card, id) in cards" :key="id" >
+				<div class="board__list--item" v-for="(card, id) in cards" :key="id" draggable @dragstart="startDrag($event, card)">
 					<div v-if="card.listID === listItem.id">
 						<p class="board__list--item-text" >{{ card.title }}</p>
 						<v-menu v-model="cardSettings[card.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
@@ -353,6 +353,21 @@ export default {
 					}
 				}
 			});
+		},
+		startDrag (evt, card) {
+			evt.dataTransfer.dropEffect = "move"
+			evt.dataTransfer.effectAllowed = "move"
+			evt.dataTransfer.setData("cardID", card.id)
+			},
+		onDrop (evt, listItem) {
+			const cardID = evt.dataTransfer.getData("cardID")
+			const card = this.cards.find(card => card.id == cardID)
+			const copiedCardListID = card.listID
+			card.listID = listItem.id
+			this.ref.doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").add({title: card.title,})
+			.then(() => {
+				this.ref.doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
+			})
 		},
 	},
 	created() {
