@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Layout v-if="0" />
+    <Layout v-if="1" />
 	<Auth v-else />
   </v-app>
 </template>

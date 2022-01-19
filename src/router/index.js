@@ -4,6 +4,7 @@ import Dashboard from "../views/Dashboard.vue";
 import Board from "../views/Board.vue";
 import SignUp from "../components/ViewComponents/AuthComponent/SignUp.vue";
 import Login from "../components/ViewComponents/AuthComponent/Login.vue";
+import Members from "../views/Members.vue";
 
 Vue.use(VueRouter)
 
@@ -27,6 +28,11 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login
+  },
+  {
+    path: "/members",
+    name: "Members",
+    component: Members
   },
 ]
 

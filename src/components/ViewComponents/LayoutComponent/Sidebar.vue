@@ -31,7 +31,7 @@
                         </div>
                     </li>
                 </a>
-                <a href="" class="workspace__link">
+                <a class="workspace__link" @click.prevent="goToUsers">
                     <li class="sidebar__list-item board">
                         <div class="board__icon">
                             <v-icon class="board__icon--trello">{{ peopleIcon }}</v-icon>
@@ -111,7 +111,12 @@ export default {
                 name: "Board",
                 params: { boardId: id },
 			});
-        }
+        },
+		goToUsers() {
+			this.$router.push({
+                name: "Members",
+			});
+		}
     },
     created() {
         this.ref.onSnapshot((snapshotChange) => {
