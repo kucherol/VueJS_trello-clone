@@ -28,7 +28,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="https://bitbucket.org/dashboard/overview" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <v-icon class="icon__additional icon__bitbucket">{{ bitBucket }}</v-icon>
                                     <p class="btn__text--additional">Bitbucket</p>
                                 </v-btn>
@@ -36,7 +36,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="https://trello.com/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <v-icon class="icon__additional icon__bitbucket">{{ trelloIcon }}</v-icon>
                                     <p class="btn__text--additional">Trello</p>
                                 </v-btn>
@@ -49,7 +49,7 @@
                         </v-list-item>
                         <v-list-item >
                             <a href="https://www.atlassian.com/software/jira" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <v-icon class="icon__additional icon__bitbucket">{{ jiraIcon }}</v-icon>
                                     <div class="btn__text--optimizer">
                                         <p class="btn__text--additional">Jira Software <span class="text__try">TRY</span></p>
@@ -60,7 +60,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="https://start.atlassian.com/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <v-icon class="icon__additional icon__bitbucket">{{ compassIcon }}</v-icon>
                                     <p class="btn__text--additional">More Atlassian products</p>
                                 </v-btn>
@@ -97,7 +97,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <div class="icon__workspace--container">
                                         <p class="icon__workspace--text">P</p>
                                     </div>
@@ -110,7 +110,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <div class="icon__workspace--container icon__workspace--second-container">
                                         <p class="icon__workspace--text">T</p>
                                     </div>
@@ -193,7 +193,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <div class="icon__template--container">
                                         <img src="../../../assets/img/template_images/template01.jpg" alt="template image" class="icon__template--image">
                                     </div>
@@ -203,7 +203,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <div class="icon__template--container">
                                         <img src="../../../assets/img/template_images/template02.jpg" alt="template image" class="icon__template--image">
                                     </div>
@@ -213,7 +213,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <div class="icon__template--container">
                                         <img src="../../../assets/img/template_images/template03.jpg" alt="template image" class="icon__template--image">
                                     </div>
@@ -223,7 +223,7 @@
                         </v-list-item>
                         <v-list-item>
                             <a href="/" class="btn__bitbucket">
-                                <v-btn class="btn__bitbucket">  
+                                <v-btn class="btn__bitbucket">
                                     <div class="icon__template--container">
                                         <img src="../../../assets/img/template_images/template04.jpg" alt="template image" class="icon__template--image">
                                     </div>
@@ -405,8 +405,8 @@ import { mdiDotsGrid, mdiTrello, mdiMenuDown, mdiLink, mdiBitbucket, mdiJira, md
 import 'font-awesome/css/font-awesome.min.css';
 import CreateBoard from '../BoardComponent/CreateBoard.vue';
 export default {
-    components: { 
-        CreateBoard 
+    components: {
+        CreateBoard
         },
     name: "Header",
     data: () => ({
@@ -434,7 +434,7 @@ export default {
     menuAva: false,
     openCreateBoard: false,
     message: false,
-    hints: true
+    hints: true,
 }),
     methods: {
         closeCreateBoard(value) {

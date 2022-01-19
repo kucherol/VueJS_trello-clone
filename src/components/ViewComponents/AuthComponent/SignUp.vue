@@ -6,10 +6,10 @@
 				<v-text-field v-model="user.firstName" label="First Name" required ></v-text-field>
 				<v-text-field v-model="user.lastName" label="Last Name" required ></v-text-field>
 				<v-text-field v-model="user.email" :rules="emailRules" label="E-mail" required ></v-text-field>
-				<v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
+				<v-text-field v-model="user.password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
 				<v-checkbox v-model="checkbox" :rules="[v => !!v || 'You must agree to continue!']" label="Do you agree with something?" required ></v-checkbox>
 				<div class="signUp__btns">
-					<v-btn :disabled="!valid" color="success" class="mr-4" @click="signUp" > Sign Up! </v-btn>
+					<v-btn :disabled="!valid" color="success" class="mr-4" @click="signUp(user)" > Sign Up! </v-btn>
 					<v-btn color="error" class="mr-4" @click="reset" > Reset Form </v-btn>
 				</div>
 				<router-link to="/login">
@@ -21,9 +21,9 @@
 </template>
 
 <script>
-	import firebase from "../../../firebase.js";
+	import {mapActions} from "vuex";
 	export default {
-		name: "SignUp",
+		name: "SignUpTest",
 		data: () => ({
 			show1: false,
 			valid: true,
@@ -32,40 +32,20 @@
 				lastName: "",
 				email: "",
 				userId: "",
+				password: ""
 			},
 			emailRules: [
 				v => !!v || 'E-mail is required',
 				v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
 			],
 			checkbox: false,
-			password: "",
 			rules: {
 				required: value => !!value || 'Required.',
 				min: v => v.length >= 8 || 'Min 8 characters',
 			},
-			ref: firebase.firestore().collection('users'),
 		}),
 		methods: {
-			signUp() {
-				firebase.auth().createUserWithEmailAndPassword(this.user.email, this.password)
-				.then(() => {
-					firebase.auth().onAuthStateChanged((user) => {
-						this.user =  {
-							firstName: this.user.firstName,
-							lastName: this.user.lastName,
-							email: user.email,
-							userId: user.uid,
-						};
-						this.ref.add(this.user)
-						.then(() => {
-							console.log("added to db")
-						}).catch((error) => {
-							console.log(error);
-						});
-					})
-				})
-
-			},
+			...mapActions(["signUp"]),
 			reset () {
 				this.$refs.form.reset()
 			},
