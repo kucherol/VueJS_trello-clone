@@ -168,6 +168,7 @@
 </template>
 
 <script>
+import {  mapGetters } from "vuex";
 import firebase from "../firebase.js";
 export default {
 	name: "Board",
@@ -179,7 +180,7 @@ export default {
 		cardDelete: {},
 		addCardMenu: {},
 		addListMenu: false,
-		ref: firebase.firestore().collection('boards'),
+		ref: firebase.firestore().collection('users'),
         board: {},
 		lists: [],
 		sortedList: [],
@@ -207,7 +208,7 @@ export default {
 			this.h1Title = !this.h1Title
 		},
 		getBoardInfo() {
-			this.ref.doc(this.$route.params.boardId).get()
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).get()
 			.then((doc) => {
 				this.board = doc.data();
 			})
@@ -216,7 +217,7 @@ export default {
 			});
 		},
 		getLists() {
-			this.ref.doc(this.$route.params.boardId).collection("lists").get()
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
 			.then(response => {
 				response.forEach((doc) => {
 					this.lists.push({
@@ -231,7 +232,7 @@ export default {
 		},
 		getCards() {
 			for (let i = 0; i < this.lists.length; i++) {
-				this.ref.doc(this.$route.params.boardId).collection("lists").doc(this.lists[i].id).collection("cards").get()
+				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(this.lists[i].id).collection("cards").get()
 				.then(response => {
 					response.forEach((doc) => {
 						this.cards.push({
@@ -247,7 +248,7 @@ export default {
 		},
 		updateTitle() {
 			this.changeHTMLTitle();
-			this.ref.doc(this.$route.params.boardId).update(this.board)
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).update(this.board)
 			.then(() => console.log("Successfully updated"))
 			.catch(function(error) {
 			console.log("Error getting document:", error);
@@ -260,7 +261,7 @@ export default {
 					element = listItem;
 				}
 			});
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).update({title: listItem.title})
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).update({title: listItem.title})
 			.then(() => console.log("Successfully updated"))
 			.catch(function(error) {
 			console.log("Error getting document:", error);
@@ -273,16 +274,16 @@ export default {
 					element = card;
 				}
 			});
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).update({title: card.title})
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).update({title: card.title})
 			.then(() => console.log("Successfully updated"))
 			.catch(function(error) {
 			console.log("Error getting document:", error);
 			});
 		},
 		addNewCard(listItem) {
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length})
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length})
 			.then(() => {
-				this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
+				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
 				.then(response => {
 					response.forEach((doc) => {
 						if (this.card.title === doc.data().title) {
@@ -302,9 +303,9 @@ export default {
 			this.closeAddCardMenu(listItem.id);
 		},
 		addNewList() {
-			this.ref.doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.lists.length })
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.lists.length })
 			.then(() => {
-				this.ref.doc(this.$route.params.boardId).collection("lists").get()
+				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
 				.then(response => {
 					response.forEach((doc) => {
 						if (this.list.title === doc.data().title) {
@@ -330,7 +331,7 @@ export default {
 				}
 			});
 			this.cards.splice(cardIndex, 1);
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).delete()
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).delete()
 			.then(() => {
 				console.log("card deleted", card)
 				})
@@ -345,10 +346,10 @@ export default {
 					let cardID = this.cards[i].id
 					this.cards.splice(i, 1);
 					i--;
-					this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").doc(cardID).delete();
+					this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").doc(cardID).delete();
 				}
 			}
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(listItem.id).delete()
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).delete()
 			.then(() => {
 				for (let j = 0; j < this.lists.length; j++ ) {
 					if (this.lists[j].id === listItem.id) {
@@ -367,11 +368,14 @@ export default {
 			const card = this.cards.find(card => card.id == cardID)
 			const copiedCardListID = card.listID
 			card.listID = listItem.id
-			this.ref.doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").add({title: card.title,})
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").add({title: card.title,})
 			.then(() => {
-				this.ref.doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
+				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
 			})
 		},
+	},
+	computed: {
+		...mapGetters(["user"])
 	},
 	created() {
 		this.getBoardInfo();

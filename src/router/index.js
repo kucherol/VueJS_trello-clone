@@ -5,16 +5,10 @@ import Board from "../views/Board.vue";
 import SignUp from "../components/ViewComponents/AuthComponent/SignUp.vue";
 import Login from "../components/ViewComponents/AuthComponent/Login.vue";
 import Members from "../views/Members.vue";
-import WelcomePage from "../views/WelcomePage.vue"
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: "/w",
-    name: "WelcomePage",
-    component: WelcomePage
-  },
   {
     path: "/dashboard/:dashboardId",
     name: "Dashboard",

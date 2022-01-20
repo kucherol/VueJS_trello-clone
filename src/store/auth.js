@@ -9,13 +9,16 @@ const auth = {
 			lastName: "",
 			email: "",
 			userId: "",
-			password: ""
+			password: "",
+			id: "",
 		},
 		isLoggedIn: false,
+		users: [],
 	},
 	getters: {
-		getUser: state => state.user,
-		isLoggedIn: state => state.isLoggedIn
+		user: state => state.user,
+		isLoggedIn: state => state.isLoggedIn,
+		users: state => state.users
 	},
 	mutations: {
 		signUp(state, user) {
@@ -29,6 +32,9 @@ const auth = {
 		},
 		loggedIn_Out(state, data) {
 			state.isLoggedIn = data
+		},
+		getUsers(state, data) {
+			state.users = data
 		}
 	},
 	actions: {
@@ -55,9 +61,9 @@ const auth = {
 					firebase.auth().onAuthStateChanged((data) => {
 						commit("setUserUID", data.uid);
 						commit("loggedIn_Out", true);
+
 						router.push({
-							name: "Dashboard",
-							params: { dashboardId: user.userId },
+							name: "Dashboard", params: { dashboardId: user.id }
 						});
 					})
 				})
@@ -76,6 +82,22 @@ const auth = {
 			}).catch((error) => {
 				console.log(error)
 			});
+		},
+		getUsersList: async ({commit}) => {
+			await firebase.firestore().collection('users').get()
+			.then(function (resp) {
+				let newUsers = [];
+				resp.forEach((doc) => {
+					newUsers.push({
+						firstName: doc.data().firstName,
+						lastName: doc.data().lastName,
+						email: doc.data().email,
+						userId: doc.data().userId,
+						id: doc.id
+					})
+				})
+				commit("getUsers", newUsers);
+			})
 		},
 
 	},

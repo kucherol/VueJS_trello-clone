@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Layout v-if="isLoggedIn"/>
+    <Layout v-if="isLoggedIn && checked" />
 	<Auth  v-else />
   </v-app>
 </template>
@@ -11,15 +11,24 @@ import Layout from "../src/layout/Layout.vue";
 import Auth from "../src/views/Auth.vue";
 export default {
   name: 'App',
+  data() {
+	return {
+		check: null,
+	}
+  },
   components: {
     Layout,
 	Auth
   },
-  data: () => ({
-    //
-  }),
   computed: {
-	...mapGetters(["isLoggedIn"])
+	...mapGetters(["isLoggedIn"]),
+	checked() {
+		if(this.$route.path == "/login" || this.$route.path == "/signup" ) {
+			return false
+		} else {
+			return true
+		}
+	}
   }
 };
 </script>

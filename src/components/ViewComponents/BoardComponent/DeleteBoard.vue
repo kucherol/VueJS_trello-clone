@@ -22,6 +22,7 @@
 
 <script>
 import firebase from "../../../firebase.js";
+import { mapGetters, mapActions } from "vuex";
 export default {
     name: "DeleteBoard",
     props: {
@@ -30,18 +31,24 @@ export default {
         }
     },
     methods: {
+		...mapActions(["getBoardsList"]),
         closeDeleteBoard() {
             this.$emit("closeDeleteBoard", this.id);
         },
         deleteBoard() {
-            firebase.firestore().collection("boards").doc(this.id).delete().then(() => {
+            firebase.firestore().collection("users").doc(this.user.id).collection("boards").doc(this.id).delete()
+			.then(() => {
+				this.getBoardsList();
                 this.closeDeleteBoard();
                 alert("Board deleted!")
             }).catch((error) => {
                 alert("Error", error);
             });
         }
-    }
+    },
+	computed: {
+		...mapGetters(["user"])
+	}
 }
 </script>
 

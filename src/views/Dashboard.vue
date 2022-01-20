@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import firebase from "../firebase.js";
+import { mapActions, mapGetters } from "vuex";
 import { mdiClockOutline, mdiTrashCanOutline } from '@mdi/js';
 import DeleteBoard from "../components/ViewComponents/BoardComponent/DeleteBoard.vue";
 export default {
@@ -44,11 +44,10 @@ export default {
     data: () => ({
         clockIcon: mdiClockOutline,
         deleteIcon: mdiTrashCanOutline,
-        boards: [ ],
         openDeleteBoard: {},
-        ref: firebase.firestore().collection('boards'),
     }),
     methods: {
+		...mapActions(["getUsersList", "getBoardsList"]),
         closeDeleteBoard(value) {
             this.openDeleteBoard[value] = false
         },
@@ -57,20 +56,24 @@ export default {
                 name: "Board",
                 params: { boardId: id },
 			});
-        }
+        },
+		getUserData() {
+			this.users.forEach(el => {
+				if (this.user.userId === el.userId) {
+					this.$store.commit("setUser", el)
+				}
+			})
+		}
     },
-    created() {
-        this.ref.onSnapshot((snapshotChange) => {
-            this.boards = [];
-            snapshotChange.forEach((doc) => {
-                this.boards.push({
-                    id: doc.id,
-                    title: doc.data().title,
-                    color: doc.data().color,
-                })
-            })
-        })
-    },
+	computed: {
+		...mapGetters(["users", "user", "boards"]),
+	},
+    async created() {
+		await this.getUsersList();
+		await this.getUserData();
+        this.getBoardsList();
+    }
+
 }
 </script>
 

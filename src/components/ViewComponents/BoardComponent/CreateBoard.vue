@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
 import firebase from "../../../firebase.js";
 export default {
     name: "CreateBoard",
@@ -47,10 +48,11 @@ export default {
                 title: ""
             },
             title: null,
-            ref: firebase.firestore().collection('boards'),
+            ref: firebase.firestore().collection('users'),
         }
     },
     methods: {
+		...mapActions(["getBoardsList"]),
         closeCreateBoard() {
             this.$emit("closeCreateBoard", false);
         },
@@ -58,10 +60,12 @@ export default {
             this.board.color = value;
         },
         createBoard() {
-            this.ref.add(this.board).then(() => {
+            this.ref.doc(this.user.id).collection("boards").add({title: this.board.title, color: this.board.color })
+			.then(() => {
                 this.closeCreateBoard();
                 this.board.color = ""
                 this.board.title = ""
+				this.getBoardsList()
             }).catch((error) => {
                 console.log(error);
             });
@@ -74,6 +78,9 @@ export default {
             }
         }
     },
+	computed: {
+		...mapGetters(["user"])
+	}
 }
 </script>
 
@@ -104,7 +111,7 @@ export default {
 
     .background-table {
         width: 100%;
-        display: grid; 
+        display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         gap: 10px 10px;
         justify-items: center;
