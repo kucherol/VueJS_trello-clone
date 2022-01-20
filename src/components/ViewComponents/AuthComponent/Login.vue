@@ -3,13 +3,13 @@
 		<div class="main-container">
 			<v-form ref="form" v-model="valid" lazy-validation class="signUp">
 				<p class="signUp__title">Please login!</p>
-				<v-text-field v-model="email" :rules="emailRules" label="E-mail" required ></v-text-field>
-				<v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
+				<v-text-field v-model="user.email" :rules="emailRules" label="E-mail" required ></v-text-field>
+				<v-text-field v-model="user.password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
 				<div class="signUp__btns">
-					<v-btn :disabled="!valid" color="success" class="mr-4" @click="login" > Login </v-btn>
+					<v-btn :disabled="!valid" color="success" class="mr-4" @click.prevent="login(user)" > Login </v-btn>
 					<v-btn color="error" class="mr-4" @click="reset" > Reset Form </v-btn>
 				</div>
-				<router-link to="/signUp">
+				<router-link to="/signup">
 					<p class="signUp__footer">Need an account </p>
 				</router-link>
 			</v-form>
@@ -18,33 +18,30 @@
 </template>
 
 <script>
-import firebase from "../../../firebase.js";
+	import {mapActions} from "vuex";
 	export default {
-		name: "SignUp",
+		name: "Login",
 		data: () => ({
+			user: {
+				firstName: "",
+				lastName: "",
+				email: "aaa@me.com",
+				userId: "",
+				password: "12345678"
+			},
 			show1: false,
 			valid: true,
-			email: '',
 			emailRules: [
 				v => !!v || 'E-mail is required',
 				v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
 			],
-			password: "",
 			rules: {
 				required: value => !!value || 'Required.',
 				min: v => v.length >= 8 || 'Min 8 characters',
 			},
 		}),
 		methods: {
-			login () {
-				firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-					.then(() => {
-						console.log("logged in")
-					})
-					.catch((error) => {
-						console.log(error)
-					});
-			},
+			...mapActions(["login"]),
 			reset () {
 				this.$refs.form.reset()
 			},

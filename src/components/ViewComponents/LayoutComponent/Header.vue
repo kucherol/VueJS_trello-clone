@@ -391,7 +391,7 @@
                     <v-divider></v-divider>
                     <v-list>
                         <v-list-item class="list-item__info">
-                            <v-list-item-title class="dropdown__text info__text">Personal cabinet is not ready yet.</v-list-item-title>
+                            <v-btn class="ma-2" color="blue-grey" @click="logout">Log Out</v-btn>
                         </v-list-item>
                     </v-list>
                 </v-card>
@@ -401,6 +401,7 @@
 </template>
 
 <script>
+import {mapActions} from "vuex";
 import { mdiDotsGrid, mdiTrello, mdiMenuDown, mdiLink, mdiBitbucket, mdiJira, mdiCompass, mdiSatellite, mdiAccountGroupOutline, mdiInformationOutline, mdiBellOutline, mdiAccountMultiple } from '@mdi/js';
 import 'font-awesome/css/font-awesome.min.css';
 import CreateBoard from '../BoardComponent/CreateBoard.vue';
@@ -437,6 +438,7 @@ export default {
     hints: true,
 }),
     methods: {
+		...mapActions(["logout"]),
         closeCreateBoard(value) {
             this.openCreateBoard = value;
         }
