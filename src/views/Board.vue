@@ -60,50 +60,58 @@
 				<div class="board__list--item" v-for="(card, id) in sortedCards" :key="id" draggable @dragstart="startDrag($event, card)">
 					<div v-if="card.listID === listItem.id">
 						<p class="board__list--item-text" >{{ card.title }}</p>
-						<v-menu v-model="cardSettings[card.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+						<v-menu v-model="cardControl[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 							<template v-slot:activator="{ on, attrs }" >
 								<v-btn small class="board__list--item-button" v-bind="attrs" v-on="on">
 									<v-icon >mdi-pencil</v-icon>
 								</v-btn>
 							</template>
 							<v-card>
-								<v-list>
-									<v-list-item>
-										<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
-									</v-list-item>
-									<div class="board__list--title-menu">
-										<v-btn icon large @click="updateCardTitle(card)">
-											<v-icon >mdi-check</v-icon>
-										</v-btn>
-										<v-btn icon large @click="closeCardSettings(card.id)">
-											<v-icon >mdi-close</v-icon>
-										</v-btn>
-									</div>
-									<v-list-item>
-									<v-menu v-model="cardDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
-										<template v-slot:activator="{ on, attrs }" >
-											<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
-										</template>
-										<v-card>
-											<v-list>
-												<v-list-item>
-													<p class="btn__delete--title">Delete card?</p>
-												</v-list-item>
-												<v-list-item>
-													<div class="btn__delete--menu">
-														<v-btn icon large @click="deleteCard(card)">
-															<v-icon >mdi-check</v-icon>
-														</v-btn>
-														<v-btn icon large @click="closeCardDelete(id)">
-															<v-icon >mdi-close</v-icon>
-														</v-btn>
-													</div>
-												</v-list-item>
-											</v-list>
-										</v-card>
-									</v-menu>
-								</v-list-item>
-								</v-list>
+								<v-dialog v-model="cardControl[id]" max-width="500px">
+									<v-card>
+										<v-card-title>
+											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto" @change="onCardTitleChange = true"></v-text-field>
+										</v-card-title>
+										<v-card-text>
+											<div class="font-weight-medium">Assign to:</div>
+											<v-select label="Choose person assign to" item-value="text" v-model="assignTo" :items="usersName"></v-select>
+										</v-card-text>
+										<v-card-text>
+											<div class="font-weight-medium">Lets do it together with:</div>
+											<v-select label="Choose person" item-value="text" :items="usersName"></v-select>
+										</v-card-text>
+										<v-card-actions class="card-settings__menu--actions">
+											<div class="card-settings__menu--actions-left">
+												<v-menu v-model="cardDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+													<template v-slot:activator="{ on, attrs }" >
+														<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
+													</template>
+													<v-card>
+														<v-list>
+															<v-list-item>
+																<p class="btn__delete--title">Delete card?</p>
+															</v-list-item>
+															<v-list-item>
+																<div class="btn__delete--menu">
+																	<v-btn icon large @click="deleteCard(card)">
+																		<v-icon >mdi-check</v-icon>
+																	</v-btn>
+																	<v-btn icon large @click="closeCardDelete(id)">
+																		<v-icon >mdi-close</v-icon>
+																	</v-btn>
+																</div>
+															</v-list-item>
+														</v-list>
+													</v-card>
+												</v-menu>
+											</div>
+											<div class="card-settings__menu--actions-right">
+												<v-btn color="green" text @click="cardControlConfirm(card)">Confirm</v-btn>
+												<v-btn color="primary" text @click="closeCardControl(id)">Close</v-btn>
+											</div>
+										</v-card-actions>
+									</v-card>
+								</v-dialog>
 							</v-card>
 						</v-menu>
 					</div>
@@ -178,6 +186,7 @@ export default {
 		listDelete: {},
 		cardSettings: {},
 		cardDelete: {},
+		cardControl: {},
 		addCardMenu: {},
 		addListMenu: false,
 		ref: firebase.firestore().collection('users'),
@@ -190,8 +199,15 @@ export default {
 			title: null
 		},
 		list: {},
+		cardDialog: false,
+		usersName: [],
+		assignTo: null,
+		onCardTitleChange: false,
     }),
 	methods: {
+		closeCardControl(id) {
+			this.cardControl[id] = false
+		},
 		closeCardDelete(id) {
 			this.cardDelete[id] = false
 		},
@@ -373,13 +389,158 @@ export default {
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
 			})
 		},
+		getNames() {
+			this.users.forEach(el => {
+				if (this.user.firstName !== el.firstName && this.user.lastName !== el.lastName) {
+					this.usersName.push(el.firstName + " " + el.lastName)
+				}
+			})
+		},
+		cardControlConfirm(card) {
+			if (this.onCardTitleChange) {
+				this.updateCardTitle(card);
+			}
+			if (this.assignTo) {
+				let str = this.assignTo.split(" ");
+				let mainUser = {};
+				this.users.forEach(el => {
+					if (el.firstName === str[0] && el.lastName === str[1]) {
+						mainUser = el;
+					}
+				})
+
+				firebase.firestore().collection("users").doc(mainUser.id).collection("boards").get()
+					.then(response => {
+						let boards = [];
+						let boardId = null;
+						let checkedBoard = false;
+						response.forEach((doc) => {
+							boards.push({
+								id: doc.id,
+								title: doc.data().title,
+								color: doc.data().color,
+							})
+						})
+						boards.forEach(el => {
+							if (el.title === "Assigned to you") {
+								boardId = el.id;
+								checkedBoard = true;
+							}
+						})
+						if (checkedBoard) {
+							firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").get()
+							.then(response => {
+								let newList = [];
+								let listId = null;
+								let checkedList = false;
+								response.forEach((doc) => {
+									newList.push({
+										id: doc.id,
+										title: doc.data().title,
+										sortListIndex: doc.data().sortListIndex,
+									})
+								})
+								newList.forEach(el => {
+									if (el.title === "Assigned tasks") {
+										listId = el.id;
+										checkedList = true;
+									}
+								})
+							if (checkedList) {
+								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, sortCardIndex: "0"})
+								.then(() => {
+									console.log("card added", card )
+								}).catch((error) => {
+									console.log(error);
+								});
+							} else {
+								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").add({title: "Assigned tasks", sortListIndex: this.lists.length })
+								.then(() => {
+									firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").get()
+									.then(response => {
+										let newList = [];
+										let listId = null;
+										response.forEach((doc) => {
+											newList.push({
+												id: doc.id,
+												title: doc.data().title,
+												sortListIndex: doc.data().sortListIndex,
+											})
+										})
+										newList.forEach(el => {
+											if (el.title === "Assigned tasks") {
+												listId = el.id;
+											}
+										})
+										firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, sortCardIndex: "0"})
+										.then(() => {
+											console.log("card added", card )
+										}).catch((error) => {
+										console.log(error);
+										});
+									})
+								})
+							}
+							})
+						} else {
+							firebase.firestore().collection("users").doc(mainUser.id).collection("boards").add({title: "Assigned to you", color: "red" })
+							.then(() => {
+								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").get()
+								.then(response => {
+									let boards = [];
+									let boardId = false;
+									response.forEach((doc) => {
+										boards.push({
+											id: doc.id,
+											title: doc.data().title,
+											color: doc.data().color,
+										})
+									})
+									boards.forEach(el => {
+										if (el.title === "Assigned to you") {
+											boardId = el.id;
+										}
+									})
+									firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").add({title: "Assigned tasks", sortListIndex: this.lists.length })
+									.then(() => {
+										firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").get()
+										.then(response => {
+											let newList = [];
+											let listId = null;
+											response.forEach((doc) => {
+												newList.push({
+													id: doc.id,
+													title: doc.data().title,
+													sortListIndex: doc.data().sortListIndex,
+												})
+											})
+											newList.forEach(el => {
+												if (el.title === "Assigned tasks") {
+													listId = el.id;
+												}
+											})
+											firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, sortCardIndex: "0"})
+											.then(() => {
+												console.log("card added", card )
+											})
+										})
+									})
+								}).catch((error) => {
+								console.log(error);
+								});
+							})
+						}
+					})
+			}
+		},
 	},
 	computed: {
-		...mapGetters(["user"])
+		...mapGetters(["user", "users"]),
 	},
 	created() {
 		this.getBoardInfo();
 		this.getLists();
+		this.getNames();
     },
 }
 </script>
@@ -544,6 +705,11 @@ export default {
 				margin: auto !important;
 			}
 		}
+	}
+
+	.card-settings__menu--actions {
+		display: flex;
+		justify-content: space-between;
 	}
 
 </style>

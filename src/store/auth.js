@@ -63,7 +63,7 @@ const auth = {
 						commit("loggedIn_Out", true);
 
 						router.push({
-							name: "Dashboard", params: { dashboardId: user.id }
+							name: "Dashboard"
 						});
 					})
 				})

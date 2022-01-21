@@ -1,5 +1,5 @@
 import firebase from "../firebase.js";
-import auth from "./auth";
+
 
 
 
@@ -19,8 +19,8 @@ const boards = {
 		}
 	},
 	actions: {
-		getBoardsList: async ({ commit }) => {
-			await firebase.firestore().collection("users").doc(auth.state.user.id).collection("boards").get()
+		getBoardsList: async ({ commit }, data) => {
+			await firebase.firestore().collection("users").doc(data).collection("boards").get()
 			.then(response => {
 				let boards = [];
 				response.forEach((doc) => {

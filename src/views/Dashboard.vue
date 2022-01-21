@@ -71,7 +71,7 @@ export default {
     async created() {
 		await this.getUsersList();
 		await this.getUserData();
-        this.getBoardsList();
+        this.getBoardsList(this.user.id);
     }
 
 }
