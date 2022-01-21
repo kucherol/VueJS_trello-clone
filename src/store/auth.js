@@ -53,17 +53,23 @@ const auth = {
 				})
 			})
 		},
-		login: async ({ commit }, user) => {
+		login: async ({ commit, dispatch, getters }, user) => {
 			commit("setUser", user);
+			await dispatch("getUsersList");
 			await firebase.auth().signInWithEmailAndPassword(user.email, user.password)
 				.then((data) => {
 					localStorage.setItem("jwtToken", JSON.stringify(data.user._delegate.accessToken));
 					firebase.auth().onAuthStateChanged((data) => {
 						commit("setUserUID", data.uid);
 						commit("loggedIn_Out", true);
-
+						let users = getters["users"];
+						users.forEach(el => {
+							if (data.uid === el.userId) {
+								commit("setUser", el)
+							}
+						})
 						router.push({
-							name: "Dashboard"
+							name: "Dashboard", params: { dashboardId: getters["user"].id },
 						});
 					})
 				})
@@ -89,6 +95,7 @@ const auth = {
 				let newUsers = [];
 				resp.forEach((doc) => {
 					newUsers.push({
+						password: doc.data().password,
 						firstName: doc.data().firstName,
 						lastName: doc.data().lastName,
 						email: doc.data().email,

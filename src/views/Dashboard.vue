@@ -47,7 +47,7 @@ export default {
         openDeleteBoard: {},
     }),
     methods: {
-		...mapActions(["getUsersList", "getBoardsList"]),
+		...mapActions(["getBoardsList"]),
         closeDeleteBoard(value) {
             this.openDeleteBoard[value] = false
         },
@@ -56,22 +56,13 @@ export default {
                 name: "Board",
                 params: { boardId: id },
 			});
-        },
-		getUserData() {
-			this.users.forEach(el => {
-				if (this.user.userId === el.userId) {
-					this.$store.commit("setUser", el)
-				}
-			})
-		}
+        }
     },
 	computed: {
 		...mapGetters(["users", "user", "boards"]),
 	},
     async created() {
-		await this.getUsersList();
-		await this.getUserData();
-        this.getBoardsList(this.user.id);
+        await this.getBoardsList(this.$route.params.dashboardId);
     }
 
 }
