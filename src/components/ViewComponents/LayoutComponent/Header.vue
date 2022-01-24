@@ -379,7 +379,9 @@
                     <v-list>
                         <v-list-item>
                             <v-list-item-content>
-                                <v-list-item-title class="dropdown__text">Account</v-list-item-title>
+                                <v-list-item-title class="dropdown__text">
+									<p class="profile__title">{{ this.user.firstName + " " + this.user.lastName }}</p>
+								</v-list-item-title>
                             </v-list-item-content>
                             <v-list-item-action>
                                 <v-btn icon small>
@@ -391,10 +393,8 @@
                     <v-divider></v-divider>
                     <v-list>
                         <v-list-item class="list-item__info">
-                            <v-btn class="ma-2" color="blue-grey" @click="logout">Log Out</v-btn>
-                        </v-list-item>
-						<v-list-item class="list-item__info">
-                            <v-btn class="ma-2" color="green" @click="emailInviteMethod">Invite</v-btn>
+							<v-btn class="ma-1 profile__btn" color="success" @click="emailInviteMethod">Invite</v-btn>
+                            <v-btn class="ma-1 profile__btn" color="blue-grey" @click="logout">Log Out</v-btn>
                         </v-list-item>
                     </v-list>
                 </v-card>
@@ -454,7 +454,7 @@ export default {
 		}
     },
 	computed: {
-		...mapGetters(["emailInvite"])
+		...mapGetters(["emailInvite", "user"])
 	}
 };
 </script>
@@ -723,4 +723,15 @@ export default {
             display: block !important;
         }
     }
+
+	.profile {
+		&__title {
+			max-width: inherit !important;
+			font-size: 18px;
+			margin-bottom: 0 !important;
+		}
+		&__btn {
+			min-width: 100% !important;
+		}
+	}
 </style>
