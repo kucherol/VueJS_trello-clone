@@ -38,7 +38,7 @@ export default {
         deleteBoard() {
             firebase.firestore().collection("users").doc(this.user.id).collection("boards").doc(this.id).delete()
 			.then(() => {
-				this.getBoardsList();
+				this.getBoardsList(this.$route.params.dashboardId);
                 this.closeDeleteBoard();
                 alert("Board deleted!")
             }).catch((error) => {

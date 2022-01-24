@@ -2,13 +2,15 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import auth from "./auth";
 import boards from "./boards";
+import invite from "./invite";
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
 	modules: {
 		auth,
-		boards
+		boards,
+		invite
 
 	}
 })

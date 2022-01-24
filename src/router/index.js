@@ -5,20 +5,34 @@ import Board from "../views/Board.vue";
 import SignUp from "../components/ViewComponents/AuthComponent/SignUp.vue";
 import Login from "../components/ViewComponents/AuthComponent/Login.vue";
 import Members from "../views/Members.vue";
+import Layout from "../layout/Layout.vue";
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: "/dashboard/:dashboardId",
-    name: "Dashboard",
-    component: Dashboard
-  },
-  {
-    path: "/board/:boardId",
-    name: "Board",
-    component: Board
-  },
+	{
+		path: "/",
+		name: "Layout",
+		component: Layout,
+		children: [
+			{
+				path: "/dashboard/:dashboardId",
+				name: "Dashboard",
+				component: Dashboard,
+			},
+			{
+				path: "/board/:boardId",
+				name: "Board",
+				component: Board
+			},
+			{
+				path: "/members",
+				name: "Members",
+				component: Members
+			},
+		]
+	},
+
   {
     path: "/signup",
     name: "SignUp",
@@ -28,11 +42,6 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login
-  },
-  {
-    path: "/members",
-    name: "Members",
-    component: Members
   },
 ]
 

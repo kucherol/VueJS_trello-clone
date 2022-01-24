@@ -393,21 +393,27 @@
                         <v-list-item class="list-item__info">
                             <v-btn class="ma-2" color="blue-grey" @click="logout">Log Out</v-btn>
                         </v-list-item>
+						<v-list-item class="list-item__info">
+                            <v-btn class="ma-2" color="green" @click="emailInviteMethod">Invite</v-btn>
+                        </v-list-item>
                     </v-list>
                 </v-card>
             </v-menu>
+			<invite />
         </v-col>
     </v-row>
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 import { mdiDotsGrid, mdiTrello, mdiMenuDown, mdiLink, mdiBitbucket, mdiJira, mdiCompass, mdiSatellite, mdiAccountGroupOutline, mdiInformationOutline, mdiBellOutline, mdiAccountMultiple } from '@mdi/js';
 import 'font-awesome/css/font-awesome.min.css';
 import CreateBoard from '../BoardComponent/CreateBoard.vue';
+import Invite from "../InviteComponent/Invite.vue";
 export default {
     components: {
-        CreateBoard
+        CreateBoard,
+		Invite,
         },
     name: "Header",
     data: () => ({
@@ -441,8 +447,15 @@ export default {
 		...mapActions(["logout"]),
         closeCreateBoard(value) {
             this.openCreateBoard = value;
-        }
+        },
+		emailInviteMethod() {
+			this.$store.commit("emailInviteToogler", true)
+
+		}
     },
+	computed: {
+		...mapGetters(["emailInvite"])
+	}
 };
 </script>
 

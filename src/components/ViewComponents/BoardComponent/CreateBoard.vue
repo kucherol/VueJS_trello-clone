@@ -65,7 +65,7 @@ export default {
                 this.closeCreateBoard();
                 this.board.color = ""
                 this.board.title = ""
-				this.getBoardsList()
+				this.getBoardsList(this.$route.params.dashboardId)
             }).catch((error) => {
                 console.log(error);
             });
