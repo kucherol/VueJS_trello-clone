@@ -68,17 +68,16 @@
 							</template>
 							<v-card>
 								<v-dialog v-model="cardControl[id]" max-width="500px">
-									<v-card>
+									<v-card class="card-settings">
 										<v-card-title>
-											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto" @change="onCardTitleChange = true"></v-text-field>
+											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto"></v-text-field>
 										</v-card-title>
 										<v-card-text>
 											<div class="font-weight-medium">Assign to:</div>
 											<v-select label="Choose person assign to" item-value="text" v-model="assignTo" :items="usersName"></v-select>
 										</v-card-text>
 										<v-card-text>
-											<div class="font-weight-medium">Lets do it together with:</div>
-											<v-select label="Choose person" item-value="text" :items="usersName"></v-select>
+											<v-textarea outlined name="input-7-4" v-model="card.information" label="Additional information" @change="onCardInformationChange = true"></v-textarea>
 										</v-card-text>
 										<v-card-actions class="card-settings__menu--actions">
 											<div class="card-settings__menu--actions-left">
@@ -131,6 +130,9 @@
 								</v-list-item>
 								<v-list-item>
 									<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
+								</v-list-item>
+								<v-list-item>
+									<v-textarea v-model="card.information" outlined name="input-7-4" label="Additional information" ></v-textarea>
 								</v-list-item>
 								<div class="board__list--title-menu">
 									<v-btn icon large @click="addNewCard(listItem)">
@@ -196,13 +198,15 @@ export default {
 		cards: [],
 		sortedCards: [],
 		card: {
-			title: null
+			title: null,
+			information: null
 		},
 		list: {},
 		cardDialog: false,
 		usersName: [],
 		assignTo: null,
 		onCardTitleChange: false,
+		onCardInformationChange: false,
     }),
 	methods: {
 		closeCardControl(id) {
@@ -255,6 +259,7 @@ export default {
 							listID: this.lists[i].id,
 							id: doc.id,
 							title: doc.data().title,
+							information: doc.data().information,
 							sortCardIndex: doc.data().sortCardIndex,
 						})
 					})
@@ -296,6 +301,19 @@ export default {
 			this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 		},
+		updateCardInformation(card) {
+			this.closeCardSettings(card.id);
+			this.cards.forEach(function(element) {
+				if ( element.id === card.id) {
+					element = card;
+				}
+			});
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).update({information: card.information})
+			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
+			.catch(function(error) {
+			this.$store.dispatch("showNotification", { type: "error", message: error.message });
+			});
+		},
 		addNewCard(listItem) {
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length})
 			.then(() => {
@@ -308,6 +326,7 @@ export default {
 							listID: listItem.id,
 							id: doc.id,
 							title: doc.data().title,
+							information: doc.data().information,
 							sortCardIndex: doc.data().sortCardIndex,
 						})
 						}
@@ -402,6 +421,9 @@ export default {
 			if (this.onCardTitleChange) {
 				this.updateCardTitle(card);
 			}
+			if (this.onCardInformationChange) {
+				this.updateCardInformation(card);
+			}
 			if (this.assignTo) {
 				let str = this.assignTo.split(" ");
 				let mainUser = {};
@@ -449,7 +471,7 @@ export default {
 									}
 								})
 							if (checkedList) {
-								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, sortCardIndex: "0"})
+								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, information: card.information, sortCardIndex: "0"})
 								.then(() => {
 									console.log("card added", card )
 								}).catch((error) => {
@@ -599,7 +621,13 @@ export default {
 			}
 		}
 		&__list {
-			padding: 8px;
+			background: rgba( 255, 255, 255, 0.5 );
+			box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+			backdrop-filter: blur( 20px );
+			-webkit-backdrop-filter: blur( 20px );
+			border-radius: 10px;
+			border: 1px solid rgba( 255, 255, 255, 0.18 );
+						padding: 8px;
 			height: fit-content;
 			&--title {
 				display: flex;
@@ -709,9 +737,11 @@ export default {
 		}
 	}
 
-	.card-settings__menu--actions {
-		display: flex;
-		justify-content: space-between;
+	.card-settings {
+		&__menu--actions {
+			display: flex;
+			justify-content: space-between;
+		}
 	}
 
 </style>

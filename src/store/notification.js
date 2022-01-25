@@ -5,7 +5,7 @@ const notification = {
 	state: {
 		notification: {
 			toggle: false,
-			timeout: 4000,
+			timeout: 3000,
 			message: null,
 			type: null,
 		},

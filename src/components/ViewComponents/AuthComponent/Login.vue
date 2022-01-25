@@ -54,12 +54,17 @@
 	.main {
 		width: 100vw;
 		height: 100vh;
-		background-color: rgba(#026AA7, $alpha: 0.7);
+		background-image: linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		&-container {
-			background-color: #fff;
+			background: rgba( 255, 255, 255, 0.35 );
+			box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+			backdrop-filter: blur( 11px );
+			-webkit-backdrop-filter: blur( 11px );
+			border-radius: 10px;
+			border: 1px solid rgba( 255, 255, 255, 0.18 );
 			width: 32%;
 			padding: 30px;
 			border-radius: 15px;

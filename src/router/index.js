@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import store from "../store/index";
 import Dashboard from "../views/Dashboard.vue";
 import Board from "../views/Board.vue";
 import SignUp from "../components/ViewComponents/AuthComponent/SignUp.vue";
@@ -54,8 +55,8 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
 	const publicPages = ["/login", "/signup"];
 	const authRequired = !publicPages.includes(to.path);
-	const loggedIn = localStorage.getItem("jwtToken");
-	if (authRequired && !loggedIn) {
+	const userInfo = store.getters["isLoggedIn"];
+	if (authRequired && !userInfo) {
 		return next("/login");
 	} else {
 		next();

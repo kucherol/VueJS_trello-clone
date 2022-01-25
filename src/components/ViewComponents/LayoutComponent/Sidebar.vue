@@ -96,7 +96,7 @@ export default {
         showSidebar: true,
         openCreateBoard: false,
         boards: [ ],
-        ref: firebase.firestore().collection('boards'),
+        ref: firebase.firestore().collection("users"),
     }),
     methods: {
         openSidebar() {
@@ -119,7 +119,7 @@ export default {
 		}
     },
     created() {
-        this.ref.onSnapshot((snapshotChange) => {
+        this.ref.doc(this.$route.params.dashboardId).collection("boards").onSnapshot((snapshotChange) => {
             this.boards = [];
             snapshotChange.forEach((doc) => {
                 this.boards.push({
