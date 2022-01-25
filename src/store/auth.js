@@ -38,10 +38,11 @@ const auth = {
 		}
 	},
 	actions: {
-		signUp: async ({ commit }, user) => {
+		signUp: async ({ commit, dispatch }, user) => {
 			commit("setUser", user);
 			await firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
 			.then(() => {
+				dispatch("showNotification", { type: "success", message: "Welcome to my-trello App" });
 				firebase.auth().onAuthStateChanged((data) => {
 					commit("setUserUID", data.uid);
 					firebase.firestore().collection('users').add(user)
@@ -52,6 +53,9 @@ const auth = {
 					});
 				})
 			})
+			.catch((error) => {
+				dispatch("showNotification", { type: "error", message: error.message });
+			});
 		},
 		login: async ({ commit, dispatch, getters }, user) => {
 			commit("setUser", user);
@@ -59,6 +63,7 @@ const auth = {
 			await firebase.auth().signInWithEmailAndPassword(user.email, user.password)
 				.then((data) => {
 					localStorage.setItem("jwtToken", JSON.stringify(data.user._delegate.accessToken));
+					dispatch("showNotification", { type: "success", message: "Welcome to my-trello App" });
 					firebase.auth().onAuthStateChanged((data) => {
 						commit("setUserUID", data.uid);
 						commit("loggedIn_Out", true);
@@ -74,19 +79,19 @@ const auth = {
 					})
 				})
 				.catch((error) => {
-					console.log(error)
+					dispatch("showNotification", { type: "error", message: error.message });
 				});
 		},
-		logout: async ({commit}) => {
+		logout: async ({commit, dispatch}) => {
 			firebase.auth().signOut().then(() => {
 				commit("loggedIn_Out", false);
 				localStorage.clear();
 				router.push({
 					name: "Login",
 				});
-				console.log("logged out")
+				dispatch("showNotification", { type: "success", message: "See you soon" });
 			}).catch((error) => {
-				console.log(error)
+				dispatch("showNotification", { type: "error", message: error.message });
 			});
 		},
 		getUsersList: async ({commit}) => {

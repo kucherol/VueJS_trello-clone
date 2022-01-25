@@ -265,9 +265,9 @@ export default {
 		updateTitle() {
 			this.changeHTMLTitle();
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).update(this.board)
-			.then(() => console.log("Successfully updated"))
+			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
-			console.log("Error getting document:", error);
+			this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 		},
 		updateListTitle(listItem) {
@@ -278,9 +278,9 @@ export default {
 				}
 			});
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).update({title: listItem.title})
-			.then(() => console.log("Successfully updated"))
+			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
-			console.log("Error getting document:", error);
+			this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 		},
 		updateCardTitle(card) {
@@ -291,14 +291,15 @@ export default {
 				}
 			});
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).update({title: card.title})
-			.then(() => console.log("Successfully updated"))
+			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
-			console.log("Error getting document:", error);
+			this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 		},
 		addNewCard(listItem) {
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length})
 			.then(() => {
+				this.$store.dispatch("showNotification", { type: "success", message: "New card was created" })
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
 				.then(response => {
 					response.forEach((doc) => {
@@ -314,13 +315,14 @@ export default {
 				})
 				})
 			.catch(function(error) {
-				console.log("Error getting document:", error);
+				this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 			this.closeAddCardMenu(listItem.id);
 		},
 		addNewList() {
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.lists.length })
 			.then(() => {
+				this.$store.dispatch("showNotification", { type: "success", message: "New list was created" })
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
 				.then(response => {
 					response.forEach((doc) => {
@@ -335,7 +337,7 @@ export default {
 				})
 				})
 			.catch(function(error) {
-				console.log("Error getting document:", error);
+				this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 			this.addListMenu = !this.addListMenu
 		},
@@ -349,10 +351,10 @@ export default {
 			this.cards.splice(cardIndex, 1);
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listID).collection("cards").doc(card.id).delete()
 			.then(() => {
-				console.log("card deleted", card)
+				this.$store.dispatch("showNotification", { type: "success", message: "Card deleted" })
 				})
 			.catch(function(error) {
-				console.log("Error getting document:", error);
+				this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 			this.closeCardDelete();
 		},

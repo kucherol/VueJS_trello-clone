@@ -66,8 +66,9 @@ export default {
                 this.board.color = ""
                 this.board.title = ""
 				this.getBoardsList(this.$route.params.dashboardId)
+				this.$store.dispatch("showNotification", { type: "success", message: "New board was created" });
             }).catch((error) => {
-                console.log(error);
+                this.$store.dispatch("showNotification", { type: "error", message: error.message });
             });
         },
         isDisabled() {

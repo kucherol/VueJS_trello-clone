@@ -38,10 +38,11 @@ export default {
 		async sendEmail() {
 			await emailjs.send("service_54x4vp4", "template_yq0n27x", this.templateParams, "user_v1LzBq5pB0LofNbZ8fCph")
 			.then((resp) => {
+				this.$store.dispatch("showNotification", { type: "success", message: "Your invitation was successfully sent" });
 				console.log('SUCCESS!', resp.status, resp.text);
 			})
 			.catch((error) => {
-				console.log(error)
+				this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
 			this.templateParams.email = ""
 			this.templateParams.message = ""

@@ -1,11 +1,13 @@
 <template>
   <v-app>
     <router-view></router-view>
+	<base-notification></base-notification>
   </v-app>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import BaseNotification from './components/BaseComponents/BaseNotification.vue';
 export default {
   name: 'App',
   data() {
@@ -14,6 +16,7 @@ export default {
 	}
   },
   components: {
+	BaseNotification,
   },
   computed: {
 	...mapGetters(["isLoggedIn"]),

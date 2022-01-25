@@ -40,9 +40,9 @@ export default {
 			.then(() => {
 				this.getBoardsList(this.$route.params.dashboardId);
                 this.closeDeleteBoard();
-                alert("Board deleted!")
+                this.$store.dispatch("showNotification", { type: "success", message: "Board deleted" });
             }).catch((error) => {
-                alert("Error", error);
+                this.$store.dispatch("showNotification", { type: "error", message: error.message });
             });
         }
     },
