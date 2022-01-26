@@ -11,7 +11,7 @@
 			showSidebar: {
 				type: Boolean,
 				default: true,
-			}
+			},
 		}
 	}
 
@@ -20,11 +20,16 @@
 <style lang="scss" scoped>
 	.main-content {
 		width: 100%;
-		padding: 45px 0 0 35px !important;
+		padding: 45px 0 0 2% !important;
 	}
 
 	.sidebar__show {
-		padding: 45px 0 0 270px !important;
+		padding: 45px 0 0 20% !important;
 	}
 
+	@media screen and (max-width: 1292px) {
+		.sidebar__show {
+			padding: 45px 0 0 0 !important;
+		}
+	}
 </style>

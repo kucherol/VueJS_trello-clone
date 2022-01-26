@@ -5,15 +5,15 @@
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn class="btn__additional" v-bind="attrs" v-on="on"><v-icon class="icon__additional">{{ menuDots }}</v-icon></v-btn>
                 </template>
-                <v-card>
+                <v-card v-if="windowWidth >= 1292">
                     <v-list>
                         <v-list-item>
                             <v-list-item-content>
                                 <v-list-item-title class="dropdown__text">More from Atlassian</v-list-item-title>
                             </v-list-item-content>
                             <v-list-item-action>
-                                <v-btn icon small>
-                                    <v-icon @click="menu = false">mdi-close</v-icon>
+                                <v-btn icon small @click="menu = false">
+                                    <v-icon >mdi-close</v-icon>
                                 </v-btn>
                             </v-list-item-action>
                         </v-list-item>
@@ -68,12 +68,26 @@
                         </v-list-item>
                     </v-list>
                 </v-card>
+				<v-card v-else>
+					<v-list>
+						<a class="members__link" @click.prevent="goToUsers">
+							<li class="members__link--list">
+								<div class="members__link--list-icon">
+									<v-icon class="board__icon--trello">{{ peopleIcon }}</v-icon>
+								</div>
+								<div class="members__link--list-text">
+									<p class="workspace__text--title board__text--item">Members</p>
+								</div>
+							</li>
+						</a>
+					</v-list>
+                </v-card>
             </v-menu>
             <v-btn class="btn__additional btn__trello">
                 <v-icon class="icon__additional">{{ trelloIcon }}</v-icon>
                 <p class="btn__text font-weight-bold text-center">Trello</p>
             </v-btn>
-            <v-menu v-model="menuWorkspace" :close-on-content-click="false" :nudge-width="200" offset-y>
+            <v-menu v-model="menuWorkspace" :close-on-content-click="false" :nudge-width="200" offset-y v-if="windowWidth >= 1292">
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on">Workspaces<v-icon class="icon__menu">{{ downArrow }}</v-icon></v-btn>
                 </template>
@@ -121,7 +135,7 @@
                     </v-list>
                 </v-card>
             </v-menu>
-            <v-menu v-model="menuRecent" :close-on-content-click="false" :nudge-width="200" offset-y>
+            <v-menu v-model="menuRecent" :close-on-content-click="false" :nudge-width="200" offset-y v-if="windowWidth >= 1292">
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on">Recent<v-icon class="icon__menu">{{ downArrow }}</v-icon></v-btn>
                 </template>
@@ -141,7 +155,7 @@
                     <v-divider></v-divider>
                 </v-card>
             </v-menu>
-            <v-menu v-model="menuStarred" :close-on-content-click="false" :nudge-width="200" offset-y>
+            <v-menu v-model="menuStarred" :close-on-content-click="false" :nudge-width="200" offset-y v-if="windowWidth >= 1292">
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on">Starred<v-icon class="icon__menu">{{ downArrow }}</v-icon></v-btn>
                 </template>
@@ -169,7 +183,7 @@
                     </v-list>
                 </v-card>
             </v-menu>
-            <v-menu v-model="menuTemplates" :close-on-content-click="false" :nudge-width="200" offset-y>
+            <v-menu v-model="menuTemplates" :close-on-content-click="false" :nudge-width="200" offset-y v-if="windowWidth >= 1292">
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on">Templates<v-icon class="icon__menu">{{ downArrow }}</v-icon></v-btn>
                 </template>
@@ -316,7 +330,7 @@
             </v-menu>
         </v-col>
         <v-col sm="6" class="header__right" >
-            <input type="text" class="input__search" placeholder="Search...">
+            <input type="text" class="input__search" placeholder="Search..." v-if="windowWidth >= 1292">
             <v-menu v-model="menuInfo" :close-on-content-click="false" :nudge-width="200" offset-y>
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn class="btn__additional btn__dropdown" v-bind="attrs" v-on="on"><v-icon class="icon__menu">{{ infoIcon }}</v-icon></v-btn>
@@ -417,34 +431,46 @@ export default {
         },
     name: "Header",
     data: () => ({
-    menuDots:  mdiDotsGrid,
-    trelloIcon: mdiTrello,
-    downArrow: mdiMenuDown,
-    linkTo: mdiLink,
-    bitBucket: mdiBitbucket,
-    jiraIcon: mdiJira,
-    compassIcon: mdiCompass,
-    templateIcon: mdiSatellite,
-    peopleIcon: mdiAccountGroupOutline,
-    infoIcon: mdiInformationOutline,
-    bellIcon: mdiBellOutline,
-    avaIcon: mdiAccountMultiple,
-    fav: true,
-    menu: false,
-    menuWorkspace: false,
-    menuRecent: false,
-    menuStarred: false,
-    menuTemplates: false,
-    menuCreate: false,
-    menuInfo: false,
-    menuNotification: false,
-    menuAva: false,
-    openCreateBoard: false,
-    message: false,
-    hints: true,
-}),
+		menuDots:  mdiDotsGrid,
+		trelloIcon: mdiTrello,
+		downArrow: mdiMenuDown,
+		linkTo: mdiLink,
+		bitBucket: mdiBitbucket,
+		jiraIcon: mdiJira,
+		compassIcon: mdiCompass,
+		templateIcon: mdiSatellite,
+		peopleIcon: mdiAccountGroupOutline,
+		infoIcon: mdiInformationOutline,
+		bellIcon: mdiBellOutline,
+		avaIcon: mdiAccountMultiple,
+		fav: true,
+		menu: false,
+		menuWorkspace: false,
+		menuRecent: false,
+		menuStarred: false,
+		menuTemplates: false,
+		menuCreate: false,
+		menuInfo: false,
+		menuNotification: false,
+		menuAva: false,
+		openCreateBoard: false,
+		message: false,
+		hints: true,
+	}),
+	props: {
+		windowWidth: {
+			type: Number,
+			rquired: true
+		}
+	},
+
     methods: {
 		...mapActions(["logout"]),
+		goToUsers() {
+			this.$router.push({
+                name: "Members",
+			});
+		},
         closeCreateBoard(value) {
             this.openCreateBoard = value;
         },
@@ -734,4 +760,19 @@ export default {
 			min-width: 100% !important;
 		}
 	}
+
+	.members__link--list {
+		display: flex;
+		flex-direction: row;
+		padding: 10px;
+		align-items: center;
+		justify-content: center;
+		& p {
+			margin-bottom: 0 !important;
+			margin-left: 10px;
+			margin-top: 2px;
+			color: #000 !important;
+		}
+	}
+
 </style>

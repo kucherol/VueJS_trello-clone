@@ -603,10 +603,11 @@ export default {
 			padding: 20px;
 			display: grid;
 			grid-template-columns: 1fr 1fr 1fr 1fr;
-			grid-template-rows: 1fr;
+			grid-auto-rows: 1fr;
 			gap: 10px 10px;
 			min-width: 20vw;
 			grid-auto-rows: minmax(min-content, max-content);
+			overflow-y: auto;
 		}
 		&__addNew {
 			box-shadow: none !important;
@@ -741,6 +742,18 @@ export default {
 		&__menu--actions {
 			display: flex;
 			justify-content: space-between;
+		}
+	}
+
+	@media screen and (max-width: 1000px) {
+		.board__table {
+			grid-template-columns: 1fr 1fr 1fr;
+		}
+	}
+
+	@media screen and (max-width: 600px) {
+		.board__table {
+			grid-template-columns: 1fr 1fr;
 		}
 	}
 

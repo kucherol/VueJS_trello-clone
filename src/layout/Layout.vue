@@ -1,9 +1,9 @@
 <template>
     <v-app>
         <div class="layout">
-            <Header />
+            <Header :windowWidth="windowWidth"/>
             <Content :showSidebar="showSidebar"/>
-            <Sidebar @openSidebar="openSidebar"/>
+            <Sidebar v-if="windowWidth >= 1292" @openSidebar="openSidebar"/>
         </div>
 	</v-app>
 </template>
@@ -21,12 +21,25 @@ export default {
     },
     data: () => ({
         showSidebar: true,
+		windowWidth: 0,
     }),
     methods: {
         openSidebar(value) {
             this.showSidebar = value;
-        }
-    }
+        },
+		getWindowWidth() {
+			this.windowWidth = document.documentElement.clientWidth;
+		},
+    },
+	mounted() {
+		this.$nextTick(function() {
+			window.addEventListener('resize', this.getWindowWidth);
+			this.getWindowWidth()
+		})
+	},
+	beforeDestroy() {
+		window.removeEventListener('resize', this.getWindowWidth);
+	}
 }
 </script>
 

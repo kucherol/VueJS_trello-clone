@@ -21,7 +21,7 @@
                     </a>
                 </li>
                 <v-divider></v-divider>
-                <a href="" class="workspace__link">
+                <a class="workspace__link" @click="goToDashboard">
                     <li class="sidebar__list-item board">
                         <div class="board__icon">
                             <v-icon class="board__icon--trello">{{ trelloIcon }}</v-icon>
@@ -41,7 +41,7 @@
                         </div>
                     </li>
                 </a>
-                <a href="" class="workspace__link">
+                <a class="workspace__link">
                     <li class="sidebar__list-item board">
                         <div class="board__icon">
                             <v-icon class="board__icon--trello">{{ settingsIcon }}</v-icon>
@@ -79,9 +79,10 @@
 </template>
 
 <script>
-import firebase from "../../../firebase.js";
+
 import CreateBoard from "../BoardComponent/CreateBoard.vue";
 import { mdiArrowRight, mdiTrello, mdiAccountGroupOutline, mdiCog, mdiPlus } from '@mdi/js';
+import { mapGetters } from 'vuex';
 export default {
     name: "Sidebar",
     components: {
@@ -95,8 +96,8 @@ export default {
         plusIcon: mdiPlus,
         showSidebar: true,
         openCreateBoard: false,
-        boards: [ ],
-        ref: firebase.firestore().collection("users"),
+
+
     }),
     methods: {
         openSidebar() {
@@ -106,7 +107,14 @@ export default {
         closeCreateBoard(value) {
             this.openCreateBoard = value;
         },
-		goToBoard(id) {
+		goToDashboard() {
+			this.$router.push({
+                name: "Dashboard",
+                params: { dashboardId: this.user.id },
+			});
+		},
+		async goToBoard(id) {
+			await this.goToDashboard();
             this.$router.push({
                 name: "Board",
                 params: { boardId: id },
@@ -118,18 +126,10 @@ export default {
 			});
 		}
     },
-    created() {
-        this.ref.doc(this.$route.params.dashboardId).collection("boards").onSnapshot((snapshotChange) => {
-            this.boards = [];
-            snapshotChange.forEach((doc) => {
-                this.boards.push({
-                    key: doc.id,
-                    title: doc.data().title,
-                    color: doc.data().color,
-                })
-            })
-        })
-    },
+	computed: {
+		...mapGetters(["user", "boards"])
+	},
+
 }
 </script>
 
