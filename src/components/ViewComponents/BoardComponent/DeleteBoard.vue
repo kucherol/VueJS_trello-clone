@@ -73,7 +73,6 @@ export default {
 
         deleteBoard() {
 			for (let i = 0; i < this.lists.length; i++) {
-				console.log(this.lists.length, i)
 				for (let j = 0; j < this.cards.length; j++) {
 					firebase.firestore().collection('users').doc(this.user.id).collection("boards").doc(this.id).collection("lists").doc(this.lists[i].id).collection("cards").doc(this.cards[j].id).delete()
 					.catch((error) => {console.log(error)});

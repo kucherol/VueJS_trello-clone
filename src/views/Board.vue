@@ -315,7 +315,7 @@ export default {
 			});
 		},
 		addNewCard(listItem) {
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length})
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length, information: this.card.information})
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "New card was created" })
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
