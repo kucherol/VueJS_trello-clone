@@ -72,6 +72,10 @@
 										<v-card-title>
 											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto"></v-text-field>
 										</v-card-title>
+										<v-card-text v-if="card.assignedFrom">
+											<div class="font-weight-medium">Assigned from:</div>
+											<div class="font-weight-medium">{{ card.assignedFrom }}</div>
+										</v-card-text>
 										<v-card-text>
 											<div class="font-weight-medium">Assign to:</div>
 											<v-select label="Choose person assign to" item-value="text" v-model="assignTo" :items="usersName"></v-select>
@@ -151,7 +155,7 @@
 				<template v-slot:activator="{ on, attrs }" >
 					<v-btn class="board__addNew" v-bind="attrs" v-on="on">
 						<v-icon class="board__addNew--icon">mdi-plus</v-icon>
-						<p class="board__addNew--text">Add another list</p>
+						<p class="board__addNew--text">Add another list </p>
 					</v-btn>
 				</template>
 				<v-card>
@@ -199,7 +203,8 @@ export default {
 		sortedCards: [],
 		card: {
 			title: null,
-			information: null
+			information: null,
+			assignedFrom: null
 		},
 		list: {
 			title: null
@@ -263,6 +268,7 @@ export default {
 							title: doc.data().title,
 							information: doc.data().information,
 							sortCardIndex: doc.data().sortCardIndex,
+							assignedFrom: doc.data().assignedFrom,
 						})
 					})
 					this.sortedCards = this.cards.sort(function(a,b) {return a.sortCardIndex - b.sortCardIndex})
@@ -317,7 +323,7 @@ export default {
 			});
 		},
 		addNewCard(listItem) {
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length, information: this.card.information, listId: listItem.id})
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length, information: this.card.information, listId: listItem.id, assignedFrom: this.card.assignedFrom})
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "New card was created" })
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
@@ -330,6 +336,7 @@ export default {
 							title: doc.data().title,
 							information: doc.data().information,
 							sortCardIndex: doc.data().sortCardIndex,
+							assignedFrom: doc.data().assignedFrom,
 						})
 						}
 					})
@@ -411,7 +418,8 @@ export default {
 			const card = this.cards.find(card => card.id == cardID)
 			const copiedCardListID = card.listId
 			card.listId = listItem.id
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title,})
+			console.log(card)
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
 			.then(() => {
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
 			})
@@ -477,7 +485,8 @@ export default {
 									}
 								})
 							if (checkedList) {
-								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, information: card.information, sortCardIndex: "0"})
+								console.log(mainUser.id, boardId, listId, card.title, card.information, card.sortCardIndex, this.user)
+								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, information: card.information ? card.information : null , sortCardIndex: "0", assignedFrom: this.user.firstName + " " + this.user.lastName})
 								.then(() => {
 									console.log("card added", card )
 								}).catch((error) => {
@@ -502,7 +511,7 @@ export default {
 												listId = el.id;
 											}
 										})
-										firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, sortCardIndex: "0"})
+										firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, information: card.information ? card.information : null , sortCardIndex: "0", assignedFrom: this.user.firstName + " " + this.user.lastName})
 										.then(() => {
 											console.log("card added", card )
 										}).catch((error) => {
@@ -549,7 +558,7 @@ export default {
 													listId = el.id;
 												}
 											})
-											firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, sortCardIndex: "0"})
+											firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, information: card.information ? card.information : null , sortCardIndex: "0", assignedFrom: this.user.firstName + " " + this.user.lastName})
 											.then(() => {
 												console.log("card added", card )
 											})
