@@ -13,6 +13,5 @@ export default new Vuex.Store({
 		boards,
 		invite,
 		notification,
-
 	}
 })

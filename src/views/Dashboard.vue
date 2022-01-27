@@ -3,9 +3,12 @@
         <section class="boards__viewed">
             <div class="boards__viewed--title">
                 <v-icon class="title-icon">{{ clockIcon }}</v-icon>
-                <p class="title-text">Recently viewed</p>
+                <p class="title-text">Last visited:</p>
             </div>
-            <div class="boards__viewed--table">
+            <div class="boards__your--table" v-if="lastBoard.id">
+                <a class="board-card" :class="lastBoard.color" @click.prevent="goToBoard(lastBoard.id)">
+                    <p class="board-card--text">{{ lastBoard.title }}</p>
+                </a>
             </div>
         </section>
         <section class="boards__viewed boards__your">
@@ -45,6 +48,7 @@ export default {
         clockIcon: mdiClockOutline,
         deleteIcon: mdiTrashCanOutline,
         openDeleteBoard: {},
+		lastBoard: {},
     }),
     methods: {
 		...mapActions(["getBoardsList"]),
@@ -56,13 +60,19 @@ export default {
                 name: "Board",
                 params: { boardId: id },
 			});
-        }
+			localStorage.setItem("lastBoardVisited", id)
+        },
+		recentlyViewedBoards() {
+			let viewBoardId = localStorage.getItem("lastBoardVisited");
+			this.lastBoard = this.boards.find(el => el.id == viewBoardId);
+		},
     },
 	computed: {
 		...mapGetters(["users", "user", "boards"]),
 	},
     async created() {
         await this.getBoardsList(this.$route.params.dashboardId);
+		this.recentlyViewedBoards();
     }
 
 }
