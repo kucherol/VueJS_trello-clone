@@ -135,6 +135,7 @@ export default {
 
 <style lang="scss" scoped>
     .sidebar {
+		display: inline-block !important;
         position: absolute;
         left: 0;
         width: 2%;

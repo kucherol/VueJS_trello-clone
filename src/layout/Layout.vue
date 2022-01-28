@@ -3,8 +3,8 @@
         <div class="layout">
             <Header :windowWidth="windowWidth"/>
             <Content :showSidebar="showSidebar"/>
-            <Sidebar v-if="windowWidth >= 1292" @openSidebar="openSidebar"/>
         </div>
+		<Sidebar v-if="windowWidth >= 1292" @openSidebar="openSidebar"/>
 	</v-app>
 </template>
 
