@@ -59,7 +59,7 @@
 				</div>
 				<div class="board__list--item" v-for="(card, id) in sortedCards" :key="id" draggable @dragstart="startDrag($event, card)">
 					<div v-if="card.listId === listItem.id">
-						<p class="board__list--item-text" >{{ card.title }}</p>
+						<p class="board__list--item-text">{{ card.title }}</p>
 						<v-menu v-model="cardControl[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 							<template v-slot:activator="{ on, attrs }" >
 								<v-btn small class="board__list--item-button" v-bind="attrs" v-on="on">
@@ -70,7 +70,7 @@
 								<v-dialog v-model="cardControl[id]" max-width="500px">
 									<v-card class="card-settings">
 										<v-card-title>
-											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto"></v-text-field>
+											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto" @change="onCardTitleChange = true"></v-text-field>
 										</v-card-title>
 										<v-card-text v-if="card.assignedFrom">
 											<div class="font-weight-medium">Assigned from:</div>
@@ -302,7 +302,6 @@ export default {
 			});
 		},
 		updateCardTitle(card) {
-			this.closeCardSettings(card.id);
 			this.cards.forEach(function(element) {
 				if ( element.id === card.id) {
 					element = card;
