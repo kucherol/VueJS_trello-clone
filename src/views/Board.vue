@@ -204,10 +204,12 @@ export default {
 		card: {
 			title: null,
 			information: null,
-			assignedFrom: null
+			assignedFrom: null,
+			sortCardIndex: null,
 		},
 		list: {
-			title: null
+			title: null,
+			sortListIndex: null,
 		},
 		cardDialog: false,
 		usersName: [],
@@ -326,13 +328,14 @@ export default {
 			});
 		},
 		addNewCard(listItem) {
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.cards.length, information: this.card.information, listId: listItem.id, assignedFrom: this.card.assignedFrom})
+			this.card.sortCardIndex = this.cards.length;
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.card.sortCardIndex, information: this.card.information, listId: listItem.id, assignedFrom: this.card.assignedFrom})
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "New card was created" })
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
 				.then(response => {
 					response.forEach((doc) => {
-						if (this.card.title === doc.data().title) {
+						if (this.card.sortCardIndex === doc.data().sortCardIndex) {
 							this.cards.push({
 							listId: doc.data().listId,
 							id: doc.id,
@@ -351,14 +354,15 @@ export default {
 			this.closeAddCardMenu(listItem.id);
 		},
 		addNewList() {
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.lists.length })
+			this.list.sortListIndex = this.lists.length;
+			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.list.sortListIndex })
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "New list was created" })
 				if (this.lists.length) {
 					this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
 					.then(response => {
 					response.forEach((doc) => {
-						if (this.list.title === doc.data().title) {
+						if (this.list.sortListIndex === doc.data().sortListIndex) {
 							this.lists.push({
 							id: doc.id,
 							title: doc.data().title,
@@ -421,7 +425,6 @@ export default {
 			const card = this.cards.find(card => card.id == cardID)
 			const copiedCardListID = card.listId
 			card.listId = listItem.id
-			console.log(card)
 			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
 			.then(() => {
 				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
