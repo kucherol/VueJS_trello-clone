@@ -10,7 +10,7 @@
 			<v-card v-for="(listItem, id) in sortedList" :key="id" elevation="2" outlined class="board__list" @drop="onDrop($event, listItem)" @dragover.prevent @dragenter.prevent>
 				<div class="board__list--title">
 					<v-card-title class="board__list--title-text">{{ listItem.title }}</v-card-title>
-					<v-menu v-model="listSettings[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+					<v-menu v-model="listSettings[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
                         <template v-slot:activator="{ on, attrs }" >
 							<v-btn class="board__list--title-button" v-bind="attrs" v-on="on">
 								<v-icon class="board__list--title-icon">mdi-dots-horizontal</v-icon>
@@ -22,15 +22,15 @@
 									<v-text-field v-model="listItem.title" solo class="board__header-left--title-input"></v-text-field>
 								</v-list-item>
 								<div class="board__list--title-menu">
-									<v-btn icon large>
-										<v-icon @click="updateListTitle(listItem)">mdi-check</v-icon>
+									<v-btn icon large @click="updateListTitle(listItem)">
+										<v-icon >mdi-check</v-icon>
 									</v-btn>
-									<v-btn icon large @click="closeListSettings(id)">
+									<v-btn icon large @click="closeListSettings(listItem.id)">
 										<v-icon >mdi-close</v-icon>
 									</v-btn>
 								</div>
 								<v-list-item>
-									<v-menu v-model="listDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+									<v-menu v-model="listDelete[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 										<template v-slot:activator="{ on, attrs }" >
 											<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
 										</template>
@@ -44,7 +44,7 @@
 														<v-btn icon large @click="deleteList(listItem)">
 															<v-icon >mdi-check</v-icon>
 														</v-btn>
-														<v-btn icon large @click="closeListSettings(id)">
+														<v-btn icon large @click="closeListDeleteMenu(listItem.id)">
 															<v-icon >mdi-close</v-icon>
 														</v-btn>
 													</div>
@@ -231,6 +231,9 @@ export default {
 		closeListSettings(id) {
 			this.listSettings[id] = !this.listSettings[id]
 		},
+		closeListDeleteMenu(id) {
+			this.listDelete[id] = !this.listDelete[id]
+		},
 		changeHTMLTitle() {
 			this.h1Title = !this.h1Title
 		},
@@ -371,7 +374,7 @@ export default {
 			.catch(function(error) {
 				this.$store.dispatch("showNotification", { type: "error", message: error.message });
 			});
-			this.addListMenu = !this.addListMenu
+			this.addListMenu = false
 		},
 		deleteCard(card) {
 			let cardIndex = 0;
