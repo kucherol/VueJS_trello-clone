@@ -1,13 +1,13 @@
 <template>
     <div class="boards">
-        <section class="boards__viewed">
+        <section class="boards__viewed" v-if="involvedBoards">
             <div class="boards__viewed--title">
                 <v-icon class="title-icon">{{ clockIcon }}</v-icon>
-                <p class="title-text">Last visited:</p>
+                <p class="title-text">Common boards:</p>
             </div>
-            <div class="boards__your--table" v-if="lastBoard.id">
-                <a class="board-card" :class="lastBoard.color" @click.prevent="goToBoard(lastBoard.id)">
-                    <p class="board-card--text">{{ lastBoard.title }}</p>
+            <div class="boards__your--table" v-for="board in involvedBoards" :key="board.id">
+                <a class="board-card" :class="board.color" @click.prevent="goToBoard(board.id)">
+                    <p class="board-card--text">{{ board.title }}</p>
                 </a>
             </div>
         </section>
@@ -21,14 +21,39 @@
             <div class="boards__your--table">
                 <a v-for="(board, id) in boards" :key="id" class="board-card" :class="board.color" @click.prevent="goToBoard(board.id)">
                     <p class="board-card--text">{{ board.title }}</p>
-                    <v-menu v-model="openDeleteBoard[board.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
-                        <template v-slot:activator="{ on, attrs }" >
-                            <v-btn class="mx-2 board-card--icon-container" fab small v-bind="attrs" v-on="on">
-                                <v-icon class="board-card--icon">{{ deleteIcon }}</v-icon>
+					<v-menu v-model="boardControl[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+						<template v-slot:activator="{ on, attrs }" >
+							<v-btn class="mx-2 board-card--icon-container" fab small v-bind="attrs" v-on="on">
+                                <v-icon class="board-card--icon">mdi-pencil</v-icon>
                             </v-btn>
-                        </template>
-                        <delete-board @closeDeleteBoard="closeDeleteBoard" :id="board.id" />
-                    </v-menu>
+						</template>
+						<v-card>
+							<v-dialog v-model="boardControl[id]" max-width="500px">
+								<v-card class="card-settings">
+									<v-card-title>
+										<v-text-field v-model="board.title" solo class="board__header-left--title-input" hide-details="auto" @change="onBoardTitleChange = true" ></v-text-field>
+									</v-card-title>
+									<v-card-text>
+										<v-autocomplete v-model="board.involvedUsers" :items="usersName" dense chips small-chips label="Add new user:" multiple class="autocomplete autocomplete__styles"></v-autocomplete>
+									</v-card-text>
+									<v-card-actions class="card-settings__menu--actions">
+										<div class="card-settings__menu--actions-left">
+											<v-menu v-model="openDeleteBoard[board.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+												<template v-slot:activator="{ on, attrs }" >
+													<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
+												</template>
+												<delete-board @closeDeleteBoard="closeDeleteBoard" :id="board.id" />
+											</v-menu>
+										</div>
+										<div class="card-settings__menu--actions-right">
+											<v-btn color="green" text @click="boardControlConfirm(board)">Confirm</v-btn>
+											<v-btn color="primary" text @click="closeBoardControl(id)">Close</v-btn>
+										</div>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
+						</v-card>
+					</v-menu>
                 </a>
             </div>
         </section>
@@ -37,6 +62,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import firebase from "../firebase";
 import { mdiClockOutline, mdiTrashCanOutline } from '@mdi/js';
 import DeleteBoard from "../components/ViewComponents/BoardComponent/DeleteBoard.vue";
 export default {
@@ -48,13 +74,25 @@ export default {
         clockIcon: mdiClockOutline,
         deleteIcon: mdiTrashCanOutline,
         openDeleteBoard: {},
-		lastBoard: {},
+		involvedBoards: [],
+		boardControl: {},
+		usersName: [],
+		usersAdded: [],
+		newBoard: {
+			title: null,
+			involvedUsers: [],
+			boardOwner: null,
+		},
+		onBoardTitleChange: false,
     }),
     methods: {
-		...mapActions(["getBoardsList"]),
+		...mapActions(["getBoardsList", "getAllBoards", "getUsersList", "getAllBoards"]),
         closeDeleteBoard(value) {
             this.openDeleteBoard[value] = false
         },
+		closeBoardControl(id) {
+			this.boardControl[id] = false;
+		},
         goToBoard(id) {
             this.$router.push({
                 name: "Board",
@@ -62,17 +100,45 @@ export default {
 			});
 			localStorage.setItem("lastBoardVisited", id)
         },
-		recentlyViewedBoards() {
-			let viewBoardId = localStorage.getItem("lastBoardVisited");
-			this.lastBoard = this.boards.find(el => el.id == viewBoardId);
+		getNames() {
+			this.users.forEach(el => {
+				if (this.user.firstName !== el.firstName && this.user.lastName !== el.lastName) {
+					this.usersName.push(el.firstName + " " + el.lastName)
+				}
+			})
+		},
+		boardControlConfirm(board) {
+			this.newBoard.title = board.title;
+			this.newBoard.color = board.color;
+			this.newBoard.involvedUsers = board.involvedUsers ? board.involvedUsers : [""];
+			this.newBoard.boardOwner = this.user.id;
+			firebase.firestore().collection('users').doc(this.user.id).collection("boards").doc(board.id).update(this.newBoard)
+			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
+			.catch(function(error) {
+			this.$store.dispatch("showNotification", { type: "error", message: error.message });
+			});
+		},
+		chooseInvolvedBoards() {
+			this.boardsList.forEach((el) => {
+				if (el.involvedUsers) {
+					el.involvedUsers.forEach((e) => {
+						if (e == this.user.firstName + " " + this.user.lastName) {
+							this.involvedBoards.push(el);
+						}
+					})
+				}
+			})
 		},
     },
 	computed: {
-		...mapGetters(["users", "user", "boards"]),
+		...mapGetters(["users", "user", "boards", "boardsList"]),
 	},
     async created() {
         await this.getBoardsList(this.$route.params.dashboardId);
-		this.recentlyViewedBoards();
+		await this.getUsersList();
+		await this.getAllBoards();
+		this.chooseInvolvedBoards();
+		this.getNames();
     }
 
 }
@@ -165,5 +231,9 @@ export default {
     p {
         margin-bottom: 0;
     }
+
+	.autocomplete__styles {
+		margin-top: 15px !important;
+	}
 
 </style>

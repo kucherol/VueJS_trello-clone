@@ -11,6 +11,7 @@ const auth = {
 			userId: "",
 			password: "",
 			id: "",
+			iconColor: "",
 		},
 		isLoggedIn: false,
 		users: [],
@@ -105,13 +106,26 @@ const auth = {
 						lastName: doc.data().lastName,
 						email: doc.data().email,
 						userId: doc.data().userId,
+						iconColor: doc.data().iconColor,
 						id: doc.id
 					})
 				})
 				commit("getUsers", newUsers);
 			})
 		},
-
+		getUsers() {
+			firebase.firestore().collection('users').get()
+			.then(response => {
+				response.forEach((doc) => {
+					this.users.push({
+						firstName: doc.data().firstName,
+						lastName: doc.data().lastName,
+						email: doc.data().email,
+						userId: doc.data().userId,
+					})
+				})
+			})
+		},
 	},
 }
 

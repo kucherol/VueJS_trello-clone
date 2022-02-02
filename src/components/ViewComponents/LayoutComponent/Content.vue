@@ -20,7 +20,7 @@
 <style lang="scss" scoped>
 	.main-content {
 		width: 100%;
-		padding: 45px 0 0 0 !important;
+		padding: 45px 0 0 2% !important;
 		height: 100vh;
 	}
 
@@ -30,7 +30,7 @@
 
 	@media screen and (max-width: 1292px) {
 		.sidebar__show {
-			padding: 45px 0 0 0 !important;
+			padding: 45px 0 0 2% !important;
 		}
 	}
 </style>

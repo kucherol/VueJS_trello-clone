@@ -45,7 +45,8 @@ export default {
             blocks: ["blue", "green", "orange", "yellow"],
             board: {
                 color: "blue",
-                title: ""
+                title: "",
+				boardOwner: this.user.id,
             },
             title: null,
             ref: firebase.firestore().collection('users'),
@@ -60,7 +61,7 @@ export default {
             this.board.color = value;
         },
         createBoard() {
-            this.ref.doc(this.user.id).collection("boards").add({title: this.board.title, color: this.board.color })
+            this.ref.doc(this.user.id).collection("boards").add({title: this.board.title, color: this.board.color, boardOwner: this.user.id, })
 			.then(() => {
                 this.closeCreateBoard();
                 this.board.color = ""

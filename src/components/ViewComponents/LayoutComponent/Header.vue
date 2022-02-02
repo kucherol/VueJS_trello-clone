@@ -393,7 +393,10 @@
                     <v-list>
                         <v-list-item>
                             <v-list-item-content>
-                                <v-list-item-title class="dropdown__text">
+                                <v-list-item-title class="dropdown__text profile__item">
+									<div class="profile__item--icon" :class="this.user.iconColor">
+										<p class="profile__item--icon-img">{{ this.user.firstName.charAt(0) }}</p>
+									</div>
 									<p class="profile__title">{{ this.user.firstName + " " + this.user.lastName }}</p>
 								</v-list-item-title>
                             </v-list-item-content>
@@ -407,8 +410,8 @@
                     <v-divider></v-divider>
                     <v-list>
                         <v-list-item class="list-item__info">
-							<v-btn class="ma-1 profile__btn" color="success" @click="emailInviteMethod">Invite</v-btn>
-                            <v-btn class="ma-1 profile__btn" color="blue-grey" @click="logout">Log Out</v-btn>
+							<v-btn class="ma-1 profile__btn" @click="emailInviteMethod">Invite</v-btn>
+                            <v-btn class="ma-1 profile__btn" @click="logout">Log Out</v-btn>
                         </v-list-item>
                     </v-list>
                 </v-card>
@@ -758,6 +761,22 @@ export default {
 		}
 		&__btn {
 			min-width: 100% !important;
+		}
+		&__item {
+			display: flex;
+			flex-direction: row;
+			&--icon {
+				margin-right: 10px;
+				width: 25px;
+				height: 25px;
+				border-radius: 5px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				&-img {
+					margin-bottom: 0 !important;
+				}
+			}
 		}
 	}
 
