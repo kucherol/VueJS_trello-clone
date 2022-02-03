@@ -5,9 +5,10 @@
                 <v-icon class="title-icon">{{ clockIcon }}</v-icon>
                 <p class="title-text">Common boards:</p>
             </div>
-            <div class="boards__your--table" v-for="board in involvedBoards" :key="board.id">
-                <a class="board-card" :class="board.color" @click.prevent="goToBoard(board.id)">
+            <div class="boards__your--table" >
+                <a class="board-card" v-for="board in involvedBoards" :key="board.id" :class="board.color" @click.prevent="goToBoard(board)">
                     <p class="board-card--text">{{ board.title }}</p>
+					<p class="board-card--text board-card--text-name">{{ board.fullName }}</p>
                 </a>
             </div>
         </section>
@@ -19,7 +20,7 @@
                 <p class="title-text">Your workspace</p>
             </div>
             <div class="boards__your--table">
-                <a v-for="(board, id) in boards" :key="id" class="board-card" :class="board.color" @click.prevent="goToBoard(board.id)">
+                <a v-for="(board, id) in boards" :key="id" class="board-card" :class="board.color" @click.prevent="goToBoard(board)">
                     <p class="board-card--text">{{ board.title }}</p>
 					<v-menu v-model="boardControl[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 						<template v-slot:activator="{ on, attrs }" >
@@ -86,19 +87,20 @@ export default {
 		onBoardTitleChange: false,
     }),
     methods: {
-		...mapActions(["getBoardsList", "getAllBoards", "getUsersList", "getAllBoards"]),
+		...mapActions(["getBoardsList", "getAllBoards", "getUsersList", "getAllBoards","getActiveBoard"]),
         closeDeleteBoard(value) {
             this.openDeleteBoard[value] = false
         },
 		closeBoardControl(id) {
 			this.boardControl[id] = false;
 		},
-        goToBoard(id) {
+        async goToBoard(board) {
+			await this.getActiveBoard(board);
             this.$router.push({
                 name: "Board",
-                params: { boardId: id },
+                params: { boardId: board.id },
 			});
-			localStorage.setItem("lastBoardVisited", id)
+			localStorage.setItem("lastBoardVisited", board.id)
         },
 		getNames() {
 			this.users.forEach(el => {
@@ -123,6 +125,11 @@ export default {
 				if (el.involvedUsers) {
 					el.involvedUsers.forEach((e) => {
 						if (e == this.user.firstName + " " + this.user.lastName) {
+							this.users.forEach((user) => {
+								if (user.id === el.boardOwner) {
+									el.fullName = user.firstName + " " + user.lastName;
+								}
+							})
 							this.involvedBoards.push(el);
 						}
 					})
@@ -204,6 +211,9 @@ export default {
             .board-card--icon-container {
                display: inline-block;
             }
+			.board-card--text-name {
+				display: block;
+			}
         }
         &--text {
             display: inline-block;
@@ -212,6 +222,9 @@ export default {
             font-size: 16px;
             margin: 10px 0 0 10px;
             transition: all 0.5s;
+			&-name {
+				display: none;
+			}
         }
         &--icon {
             &-container {

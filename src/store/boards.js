@@ -7,10 +7,12 @@ const boards = {
 	state: {
 		boards: [],
 		boardsList: [],
+		activeBoard: [],
 	},
 	getters: {
 		boards: state => state.boards,
 		boardsList: state => state.boardsList,
+		activeBoard: state => state.activeBoard,
 	},
 	mutations: {
 		setBoards(state, data) {
@@ -21,7 +23,10 @@ const boards = {
 		},
 		setBoardRoute(state, data) {
 			state.boardRoute = data
-		}
+		},
+		setActiveBoard(state, data) {
+			state.activeBoard = data
+		},
 	},
 	actions: {
 		getBoardsList: async ({ commit }, data) => {
@@ -57,6 +62,9 @@ const boards = {
 				commit("setAllBoards", boards);
 				})
 			}
+		},
+		getActiveBoard: ({ commit }, data) => {
+			commit("setActiveBoard",data)
 		},
 	},
 }

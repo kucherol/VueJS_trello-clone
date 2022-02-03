@@ -240,7 +240,7 @@ export default {
 			this.h1Title = !this.h1Title
 		},
 		getBoardInfo() {
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).get()
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).get()
 			.then((doc) => {
 				this.board = doc.data();
 			})
@@ -249,7 +249,7 @@ export default {
 			});
 		},
 		getLists() {
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
 			.then(response => {
 				response.forEach((doc) => {
 					this.lists.push({
@@ -264,7 +264,7 @@ export default {
 		},
 		getCards() {
 			for (let i = 0; i < this.lists.length; i++) {
-				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(this.lists[i].id).collection("cards").get()
+				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(this.lists[i].id).collection("cards").get()
 				.then(response => {
 					response.forEach((doc) => {
 						this.cards.push({
@@ -282,7 +282,7 @@ export default {
 		},
 		updateTitle() {
 			this.changeHTMLTitle();
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).update(this.board)
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).update(this.board)
 			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
 			this.$store.dispatch("showNotification", { type: "error", message: error.message });
@@ -295,7 +295,7 @@ export default {
 					element = listItem;
 				}
 			});
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).update({title: listItem.title})
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).update({title: listItem.title})
 			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
 			this.$store.dispatch("showNotification", { type: "error", message: error.message });
@@ -307,7 +307,7 @@ export default {
 					element = card;
 				}
 			});
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").doc(card.id).update({title: card.title})
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").doc(card.id).update({title: card.title})
 			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
 			this.$store.dispatch("showNotification", { type: "error", message: error.message });
@@ -320,7 +320,7 @@ export default {
 					element = card;
 				}
 			});
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").doc(card.id).update({information: card.information})
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").doc(card.id).update({information: card.information})
 			.then(() => this.$store.dispatch("showNotification", { type: "success", message: "Updated" }))
 			.catch(function(error) {
 			this.$store.dispatch("showNotification", { type: "error", message: error.message });
@@ -328,10 +328,10 @@ export default {
 		},
 		addNewCard(listItem) {
 			this.card.sortCardIndex = this.cards.length;
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.card.sortCardIndex, information: this.card.information, listId: listItem.id, assignedFrom: this.card.assignedFrom})
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").add({title: this.card.title, sortCardIndex: this.card.sortCardIndex, information: this.card.information, listId: listItem.id, assignedFrom: this.card.assignedFrom})
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "New card was created" })
-				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
+				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").get()
 				.then(response => {
 					response.forEach((doc) => {
 						if (this.card.sortCardIndex === doc.data().sortCardIndex) {
@@ -354,11 +354,11 @@ export default {
 		},
 		addNewList() {
 			this.list.sortListIndex = this.lists.length;
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.list.sortListIndex })
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").add({title: this.list.title, sortListIndex: this.list.sortListIndex })
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "New list was created" })
 				if (this.lists.length) {
-					this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
+					this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").get()
 					.then(response => {
 					response.forEach((doc) => {
 						if (this.list.sortListIndex === doc.data().sortListIndex) {
@@ -387,7 +387,7 @@ export default {
 				}
 			});
 			this.cards.splice(cardIndex, 1);
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").doc(card.id).delete()
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").doc(card.id).delete()
 			.then(() => {
 				this.$store.dispatch("showNotification", { type: "success", message: "Card deleted" })
 				})
@@ -402,10 +402,10 @@ export default {
 					let cardID = this.cards[i].id
 					this.cards.splice(i, 1);
 					i--;
-					this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").doc(cardID).delete();
+					this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).collection("cards").doc(cardID).delete();
 				}
 			}
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).delete()
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(listItem.id).delete()
 			.then(() => {
 				for (let j = 0; j < this.lists.length; j++ ) {
 					if (this.lists[j].id === listItem.id) {
@@ -424,9 +424,9 @@ export default {
 			const card = this.cards.find(card => card.id == cardID)
 			const copiedCardListID = card.listId
 			card.listId = listItem.id
-			this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
 			.then(() => {
-				this.ref.doc(this.user.id).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
+				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
 			})
 		},
 		getNames() {
@@ -490,7 +490,6 @@ export default {
 									}
 								})
 							if (checkedList) {
-								console.log(mainUser.id, boardId, listId, card.title, card.information, card.sortCardIndex, this.user)
 								firebase.firestore().collection("users").doc(mainUser.id).collection("boards").doc(boardId).collection("lists").doc(listId).collection("cards").add({title: card.title, information: card.information ? card.information : null , sortCardIndex: "0", assignedFrom: this.user.firstName + " " + this.user.lastName})
 								.then(() => {
 									console.log("card added", card )
@@ -579,7 +578,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapGetters(["user", "users"]),
+		...mapGetters(["user", "users", "activeBoard"]),
 	},
 	created() {
 		this.getBoardInfo();
