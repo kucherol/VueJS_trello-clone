@@ -418,8 +418,23 @@ export default {
 			evt.dataTransfer.dropEffect = "move"
 			evt.dataTransfer.effectAllowed = "move"
 			evt.dataTransfer.setData("cardID", card.id)
-			},
+		},
 		onDrop (evt, listItem) {
+			const cardID = evt.dataTransfer.getData("cardID")
+			const card = this.cards.find(card => card.id == cardID)
+			const copiedCardListID = card.listId
+			card.listId = listItem.id
+			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
+			.then(() => {
+				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
+			})
+		},
+		startDragList (evt, card) {
+			evt.dataTransfer.dropEffect = "move"
+			evt.dataTransfer.effectAllowed = "move"
+			evt.dataTransfer.setData("cardID", card.id)
+		},
+		onDropList (evt, listItem) {
 			const cardID = evt.dataTransfer.getData("cardID")
 			const card = this.cards.find(card => card.id == cardID)
 			const copiedCardListID = card.listId
@@ -621,12 +636,13 @@ export default {
 		&__table {
 			padding: 20px;
 			display: grid;
-			grid-template-columns: 1fr 1fr 1fr 1fr;
-			grid-auto-rows: 1fr;
+			grid-template-columns: repeat(auto-fill,minmax(240px,240px));
+			grid-auto-flow: column;
+			grid-auto-columns: minmax(240px,240px);
 			gap: 10px 10px;
-			min-width: 20vw;
-			grid-auto-rows: minmax(min-content, max-content);
+
 			overflow-y: auto;
+			height: calc(100% - 40px);
 		}
 		&__addNew {
 			box-shadow: none !important;
