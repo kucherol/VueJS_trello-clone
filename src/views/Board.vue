@@ -6,150 +6,153 @@
 				<v-text-field v-model="board.title" v-if="!h1Title" solo clearable clear-icon="mdi-check" @click:clear="updateTitle" class="board__header-left--title-input"></v-text-field>
 			</v-col>
 		</v-row>
-		<v-row class="board__table">
-			<v-card v-for="(listItem, id) in sortedList" :key="id" elevation="2" outlined class="board__list" @drop="onDrop($event, listItem)" @dragover.prevent @dragenter.prevent>
-				<div class="board__list--title">
-					<v-card-title class="board__list--title-text">{{ listItem.title }}</v-card-title>
-					<v-menu v-model="listSettings[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
-                        <template v-slot:activator="{ on, attrs }" >
-							<v-btn class="board__list--title-button" v-bind="attrs" v-on="on">
-								<v-icon class="board__list--title-icon">mdi-dots-horizontal</v-icon>
-							</v-btn>
-						</template>
-						<v-card>
-							<v-list>
-								<v-list-item>
-									<v-text-field v-model="listItem.title" solo class="board__header-left--title-input"></v-text-field>
-								</v-list-item>
-								<div class="board__list--title-menu">
-									<v-btn icon large @click="updateListTitle(listItem)">
-										<v-icon >mdi-check</v-icon>
-									</v-btn>
-									<v-btn icon large @click="closeListSettings(listItem.id)">
-										<v-icon >mdi-close</v-icon>
-									</v-btn>
-								</div>
-								<v-list-item>
-									<v-menu v-model="listDelete[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
-										<template v-slot:activator="{ on, attrs }" >
-											<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
-										</template>
-										<v-card>
-											<v-list>
-												<v-list-item>
-													<p class="btn__delete--title">Delete list?</p>
-												</v-list-item>
-												<v-list-item>
-													<div class="btn__delete--menu">
-														<v-btn icon large @click="deleteList(listItem)">
-															<v-icon >mdi-check</v-icon>
-														</v-btn>
-														<v-btn icon large @click="closeListDeleteMenu(listItem.id)">
-															<v-icon >mdi-close</v-icon>
-														</v-btn>
-													</div>
-												</v-list-item>
-											</v-list>
-										</v-card>
-									</v-menu>
-								</v-list-item>
-							</v-list>
-						</v-card>
-					</v-menu>
-				</div>
-				<div class="board__list--item" v-for="(card, id) in sortedCards" :key="id" draggable @dragstart="startDrag($event, card)">
-					<div v-if="card.listId === listItem.id">
-						<p class="board__list--item-text">{{ card.title }}</p>
-						<v-menu v-model="cardControl[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+		<v-row class="board__table" >
+			<v-card v-for="(listItem, id) in sortedList" :key="id" elevation="2" outlined class="board__list" draggable @dragstart="startDragList($event, listItem)">
+				<div class="cardDrop-container" @drop="onDrop($event, listItem)" @dragover.prevent @dragenter.prevent>
+					<div class="board__list--title" @drop="onDropList($event)" @dragover.prevent @dragenter.prevent>
+						<v-card-title class="board__list--title-text">{{ listItem.title }}</v-card-title>
+						<v-menu v-model="listSettings[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
 							<template v-slot:activator="{ on, attrs }" >
-								<v-btn small class="board__list--item-button" v-bind="attrs" v-on="on">
-									<v-icon >mdi-pencil</v-icon>
+								<v-btn class="board__list--title-button" v-bind="attrs" v-on="on">
+									<v-icon class="board__list--title-icon">mdi-dots-horizontal</v-icon>
 								</v-btn>
 							</template>
 							<v-card>
-								<v-dialog v-model="cardControl[id]" max-width="500px">
-									<v-card class="card-settings">
-										<v-card-title>
-											<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto" @change="onCardTitleChange = true"></v-text-field>
-										</v-card-title>
-										<v-card-text v-if="card.assignedFrom">
-											<div class="font-weight-medium">Assigned from:</div>
-											<div class="font-weight-medium">{{ card.assignedFrom }}</div>
-										</v-card-text>
-										<v-card-text>
-											<div class="font-weight-medium">Assign to:</div>
-											<v-select label="Choose person assign to" item-value="text" v-model="assignTo" :items="usersName"></v-select>
-										</v-card-text>
-										<v-card-text>
-											<v-textarea outlined name="input-7-4" v-model="card.information" label="Additional information" @change="onCardInformationChange = true"></v-textarea>
-										</v-card-text>
-										<v-card-actions class="card-settings__menu--actions">
-											<div class="card-settings__menu--actions-left">
-												<v-menu v-model="cardDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
-													<template v-slot:activator="{ on, attrs }" >
-														<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
-													</template>
-													<v-card>
-														<v-list>
-															<v-list-item>
-																<p class="btn__delete--title">Delete card?</p>
-															</v-list-item>
-															<v-list-item>
-																<div class="btn__delete--menu">
-																	<v-btn icon large @click="deleteCard(card)">
-																		<v-icon >mdi-check</v-icon>
-																	</v-btn>
-																	<v-btn icon large @click="closeCardDelete(id)">
-																		<v-icon >mdi-close</v-icon>
-																	</v-btn>
-																</div>
-															</v-list-item>
-														</v-list>
-													</v-card>
-												</v-menu>
-											</div>
-											<div class="card-settings__menu--actions-right">
-												<v-btn color="green" text @click="cardControlConfirm(card)">Confirm</v-btn>
-												<v-btn color="primary" text @click="closeCardControl(id)">Close</v-btn>
-											</div>
-										</v-card-actions>
-									</v-card>
-								</v-dialog>
+								<v-list>
+									<v-list-item>
+										<v-text-field v-model="listItem.title" solo class="board__header-left--title-input"></v-text-field>
+									</v-list-item>
+									<div class="board__list--title-menu">
+										<v-btn icon large @click="updateListTitle(listItem)">
+											<v-icon >mdi-check</v-icon>
+										</v-btn>
+										<v-btn icon large @click="closeListSettings(listItem.id)">
+											<v-icon >mdi-close</v-icon>
+										</v-btn>
+									</div>
+									<v-list-item>
+										<v-menu v-model="listDelete[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+											<template v-slot:activator="{ on, attrs }" >
+												<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
+											</template>
+											<v-card>
+												<v-list>
+													<v-list-item>
+														<p class="btn__delete--title">Delete list?</p>
+													</v-list-item>
+													<v-list-item>
+														<div class="btn__delete--menu">
+															<v-btn icon large @click="deleteList(listItem)">
+																<v-icon >mdi-check</v-icon>
+															</v-btn>
+															<v-btn icon large @click="closeListDeleteMenu(listItem.id)">
+																<v-icon >mdi-close</v-icon>
+															</v-btn>
+														</div>
+													</v-list-item>
+												</v-list>
+											</v-card>
+										</v-menu>
+									</v-list-item>
+								</v-list>
+							</v-card>
+						</v-menu>
+					</div>
+					<div class="board__list--item" v-for="(card, id) in sortedCards" :key="id" draggable @dragstart="startDrag($event, card)">
+						<div v-if="card.listId === listItem.id">
+							<p class="board__list--item-text">{{ card.title }}</p>
+							<v-menu v-model="cardControl[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+								<template v-slot:activator="{ on, attrs }" >
+									<v-btn small class="board__list--item-button" v-bind="attrs" v-on="on">
+										<v-icon >mdi-pencil</v-icon>
+									</v-btn>
+								</template>
+								<v-card>
+									<v-dialog v-model="cardControl[id]" max-width="500px">
+										<v-card class="card-settings">
+											<v-card-title>
+												<v-text-field v-model="card.title" solo class="board__header-left--title-input" hide-details="auto" @change="onCardTitleChange = true"></v-text-field>
+											</v-card-title>
+											<v-card-text v-if="card.assignedFrom">
+												<div class="font-weight-medium">Assigned from:</div>
+												<div class="font-weight-medium">{{ card.assignedFrom }}</div>
+											</v-card-text>
+											<v-card-text>
+												<div class="font-weight-medium">Assign to:</div>
+												<v-select label="Choose person assign to" item-value="text" v-model="assignTo" :items="usersName"></v-select>
+											</v-card-text>
+											<v-card-text>
+												<v-textarea outlined name="input-7-4" v-model="card.information" label="Additional information" @change="onCardInformationChange = true"></v-textarea>
+											</v-card-text>
+											<v-card-actions class="card-settings__menu--actions">
+												<div class="card-settings__menu--actions-left">
+													<v-menu v-model="cardDelete[id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+														<template v-slot:activator="{ on, attrs }" >
+															<v-btn class="ma-1 btn__delete--list" color="error" plain v-bind="attrs" v-on="on">Delete</v-btn>
+														</template>
+														<v-card>
+															<v-list>
+																<v-list-item>
+																	<p class="btn__delete--title">Delete card?</p>
+																</v-list-item>
+																<v-list-item>
+																	<div class="btn__delete--menu">
+																		<v-btn icon large @click="deleteCard(card)">
+																			<v-icon >mdi-check</v-icon>
+																		</v-btn>
+																		<v-btn icon large @click="closeCardDelete(id)">
+																			<v-icon >mdi-close</v-icon>
+																		</v-btn>
+																	</div>
+																</v-list-item>
+															</v-list>
+														</v-card>
+													</v-menu>
+												</div>
+												<div class="card-settings__menu--actions-right">
+													<v-btn color="green" text @click="cardControlConfirm(card)">Confirm</v-btn>
+													<v-btn color="primary" text @click="closeCardControl(id)">Close</v-btn>
+												</div>
+											</v-card-actions>
+										</v-card>
+									</v-dialog>
+								</v-card>
+							</v-menu>
+						</div>
+					</div>
+					<div class="board__list--footer">
+						<v-menu v-model="addCardMenu[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
+							<template v-slot:activator="{ on, attrs }" >
+								<v-btn class="board__list--footer-button" v-bind="attrs" v-on="on">
+									<v-icon class="board__list--footer-icon">mdi-plus</v-icon>
+									<p class="board__list--footer-text">Add a card</p>
+								</v-btn>
+							</template>
+							<v-card>
+								<v-list>
+									<v-list-item class="addCard__menu--title">
+										<p class="addCard__menu--title-text">Add new card</p>
+									</v-list-item>
+									<v-list-item>
+										<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
+									</v-list-item>
+									<v-list-item>
+										<v-textarea v-model="card.information" outlined name="input-7-4" label="Additional information" ></v-textarea>
+									</v-list-item>
+									<div class="board__list--title-menu">
+										<v-btn icon large @click="addNewCard(listItem)">
+											<v-icon>mdi-check</v-icon>
+										</v-btn>
+										<v-btn icon large @click="closeAddCardMenu(listItem.id)">
+											<v-icon >mdi-close</v-icon>
+										</v-btn>
+									</div>
+								</v-list>
 							</v-card>
 						</v-menu>
 					</div>
 				</div>
-				<div class="board__list--footer">
-					<v-menu v-model="addCardMenu[listItem.id]" :close-on-content-click="false" :nudge-width="200" offset-y>
-						<template v-slot:activator="{ on, attrs }" >
-							<v-btn class="board__list--footer-button" v-bind="attrs" v-on="on">
-								<v-icon class="board__list--footer-icon">mdi-plus</v-icon>
-								<p class="board__list--footer-text">Add a card</p>
-							</v-btn>
-						</template>
-						<v-card>
-							<v-list>
-								<v-list-item class="addCard__menu--title">
-									<p class="addCard__menu--title-text">Add new card</p>
-								</v-list-item>
-								<v-list-item>
-									<v-text-field v-model="card.title" solo class="board__header-left--title-input"></v-text-field>
-								</v-list-item>
-								<v-list-item>
-									<v-textarea v-model="card.information" outlined name="input-7-4" label="Additional information" ></v-textarea>
-								</v-list-item>
-								<div class="board__list--title-menu">
-									<v-btn icon large @click="addNewCard(listItem)">
-										<v-icon>mdi-check</v-icon>
-									</v-btn>
-									<v-btn icon large @click="closeAddCardMenu(listItem.id)">
-										<v-icon >mdi-close</v-icon>
-									</v-btn>
-								</div>
-							</v-list>
-						</v-card>
-					</v-menu>
-				</div>
+
 			</v-card>
 			<v-menu v-model="addListMenu" :close-on-content-click="false" :nudge-width="200" offset-y>
 				<template v-slot:activator="{ on, attrs }" >
@@ -195,6 +198,8 @@ export default {
 		cardControl: {},
 		addCardMenu: {},
 		addListMenu: false,
+		droppableList: false,
+		droppableCard: false,
 		ref: firebase.firestore().collection('users'),
         board: {},
 		lists: [],
@@ -418,31 +423,51 @@ export default {
 			evt.dataTransfer.dropEffect = "move"
 			evt.dataTransfer.effectAllowed = "move"
 			evt.dataTransfer.setData("cardID", card.id)
+			this.droppableCard = true
 		},
 		onDrop (evt, listItem) {
-			const cardID = evt.dataTransfer.getData("cardID")
-			const card = this.cards.find(card => card.id == cardID)
-			const copiedCardListID = card.listId
-			card.listId = listItem.id
-			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
-			.then(() => {
-				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
-			})
+			if (this.droppableCard) {
+				const cardID = evt.dataTransfer.getData("cardID")
+				const card = this.cards.find(card => card.id == cardID)
+				const copiedCardListID = card.listId
+				card.listId = listItem.id
+				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
+				.then(() => {
+					this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
+				})
+				this.droppableCard = false
+			} else {
+				return;
+			}
 		},
-		startDragList (evt, card) {
+		startDragList (evt, listItem) {
 			evt.dataTransfer.dropEffect = "move"
 			evt.dataTransfer.effectAllowed = "move"
-			evt.dataTransfer.setData("cardID", card.id)
+			evt.dataTransfer.setData("listItemID", listItem.id)
+			evt.dataTransfer.setData("listItemSortIndex", listItem.sortListIndex)
+			this.droppableList = true
 		},
-		onDropList (evt, listItem) {
-			const cardID = evt.dataTransfer.getData("cardID")
-			const card = this.cards.find(card => card.id == cardID)
-			const copiedCardListID = card.listId
-			card.listId = listItem.id
-			this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(card.listId).collection("cards").add({title: card.title, sortCardIndex: this.cards.length, information: card.information, listId: card.listId, assignedFrom: card.assignedFrom})
-			.then(() => {
-				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(copiedCardListID).collection("cards").doc(cardID).delete()
-			})
+		onDropList (evt) {
+			if (this.droppableList) {
+				const listItemID = evt.dataTransfer.getData("listItemID")
+				let dragListItem = this.lists.find(list => list.id == listItemID)
+				let dropListItem = this.lists.find(list => list.title == evt.toElement.innerText)
+				const savedIndex = dragListItem.sortListIndex
+				dragListItem.sortListIndex = dropListItem.sortListIndex
+				dropListItem.sortListIndex = savedIndex
+				this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(dragListItem.id).update(dragListItem)
+				.then(() => {
+					this.ref.doc(this.activeBoard.boardOwner).collection("boards").doc(this.$route.params.boardId).collection("lists").doc(dropListItem.id).update(dropListItem)
+					.then(() => {
+						this.lists = [];
+						this.cards = [];
+						this.getLists();
+					})
+				})
+				this.droppableList = false
+			} else {
+				return;
+			}
 		},
 		getNames() {
 			this.users.forEach(el => {
@@ -687,6 +712,9 @@ export default {
 				&-menu {
 					display: flex;
 					justify-content: center;
+				}
+				&:hover {
+					cursor: pointer;
 				}
 			}
 			&--footer {
