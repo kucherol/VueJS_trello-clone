@@ -46,7 +46,6 @@ export default {
             board: {
                 color: "blue",
                 title: "",
-				boardOwner: this.user.id,
             },
             title: null,
             ref: firebase.firestore().collection('users'),
